@@ -1,0 +1,9 @@
+[submodule "static/js/vendor/Leaflet.RotatedMarker"]
+	path = static/js/vendor/Leaflet.RotatedMarker
+	url = https://github.com/bbecquet/Leaflet.RotatedMarker
+[submodule "static/js/vendor/leaflet-betterscale"]
+	path = static/js/vendor/leaflet-betterscale
+	url = https://github.com/daniellsu/leaflet-betterscale
+[submodule "static/js/vendor/leaflet-openweathermap"]
+	path = static/js/vendor/leaflet-openweathermap
+	url = https://github.com/buche/leaflet-openweathermap
