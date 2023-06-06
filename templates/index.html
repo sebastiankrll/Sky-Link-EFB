@@ -1,0 +1,1355 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sky Link</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="../static/js/vendor/Leaflet.RotatedMarker/leaflet.rotatedMarker.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../static/js/vendor/leaflet-openweathermap/leaflet-openweathermap.css" />
+    <script type="text/javascript" src="../static/js/vendor/leaflet-openweathermap/leaflet-openweathermap.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../static/js/vendor/leaflet-betterscale/L.Control.BetterScale.css" />
+    <script type="text/javascript" src="../static/js/vendor/leaflet-betterscale/L.Control.BetterScale.js"></script>
+
+    <script src="https://unpkg.com/@joergdietrich/leaflet.terminator"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.7.107/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.7.107/pdf.worker.min.js"></script>
+
+    <link rel="apple-touch-icon" href="../static/img/icons/apple_logo.png" />
+    <link rel="apple-touch-startup-image" href="../static/img/icons/apple_logo.png">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+    <link rel="stylesheet" type="text/css" href="../static/css/general.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/login.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/notepad.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/dashboard.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/briefing.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/navigation.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/documents.css">
+</head>
+
+<body>
+    <aside id="login-page">
+        <div class="preloader" id="preloader-login"></div>
+        <img src="../static/img/hero/main.png" alt="main-logo">
+        <form action="">
+            <label for="simbrief-user">Enter Simbrief-ID to load flightplan:</label>
+            <input type="text" id="simbrief-user" placeholder="Username (not Pilot ID)" name="userid">
+            <button type="button" id="btn-load-simbrief">
+                <p>Load flight plan</p>
+                <div class="lds-ellipsis" id="lds-simbrief">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+            </button>
+            <button type="button" id="btn-no-simbrief">Continue without flight plan</button>
+        </form>
+        <div id="login-footer">
+            <p>A</p>
+            <img src="../static/img/icons/skruellex.png" alt="skruellex">
+            <p>Product</p>
+        </div>
+    </aside>
+    <aside class="popup" id="conditions-popup"></aside>
+    <aside class="popup" id="flightplan-signature-popup"></aside>
+    <header>
+        <div class="header-box">
+            <span>
+                <div class="header-item" id="header-logo">
+                    <img src="../static/img/icons/logo.png" alt="Logo">
+                </div>
+                <div class="header-item" id="sim-connection"></div>
+            </span>
+        </div>
+        <div class="header-box">
+            <div class="header-item">
+                <p class="callsign">NO FLIGHTPLAN</p>
+                <p><span class="icao_dep">ICAO</span> &ndash; <span class="icao_arr">ICAO</span></p>
+            </div>
+        </div>
+        <div class="header-box">
+            <span>
+                <div class="header-item" id="time">--:-- UTC</div>
+                <div class="header-item">
+                    <svg id="toggle-notepad" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                        <title />
+                        <g data-name="Layer 42" id="Layer_42">
+                            <path class="cls-1"
+                                d="M2,29a1,1,0,0,1-1-1.11l.77-7a1,1,0,0,1,.29-.59L18.42,3.94a3.2,3.2,0,0,1,4.53,0l3.11,3.11a3.2,3.2,0,0,1,0,4.53L9.71,27.93a1,1,0,0,1-.59.29l-7,.77Zm7-1.78H9ZM3.73,21.45l-.6,5.42,5.42-.6,16.1-16.1a1.2,1.2,0,0,0,0-1.7L21.53,5.35a1.2,1.2,0,0,0-1.7,0Z" />
+                            <path class="cls-1"
+                                d="M23,14.21a1,1,0,0,1-.71-.29L16.08,7.69A1,1,0,0,1,17.5,6.27l6.23,6.23a1,1,0,0,1,0,1.42A1,1,0,0,1,23,14.21Z" />
+                            <rect class="cls-1" height="2" transform="translate(-8.31 14.13) rotate(-45)" width="11.01"
+                                x="7.39" y="16.1" />
+                            <path class="cls-1" d="M30,29H14a1,1,0,0,1,0-2H30a1,1,0,0,1,0,2Z" />
+                        </g>
+                    </svg>
+                </div>
+                <div class="header-item">
+                    <svg id="toggle-settings" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+                        <title />
+                        <path
+                            d="M64,39A25,25,0,1,0,89,64,25,25,0,0,0,64,39Zm0,44A19,19,0,1,1,83,64,19,19,0,0,1,64,83Z" />
+                        <path
+                            d="M121,48h-8.93a1,1,0,0,1-.94-.68,49.9,49.9,0,0,0-2-4.85,1,1,0,0,1,.18-1.15L115.62,35a7,7,0,0,0,0-9.9L102.89,12.38a7,7,0,0,0-9.9,0l-6.31,6.31a1,1,0,0,1-1.15.18,49.76,49.76,0,0,0-4.85-2,1,1,0,0,1-.68-.94V7a7,7,0,0,0-7-7H55a7,7,0,0,0-7,7v8.93a1,1,0,0,1-.68.94,49.9,49.9,0,0,0-4.85,2,1,1,0,0,1-1.15-.18L35,12.38a7,7,0,0,0-9.9,0L12.38,25.11a7,7,0,0,0,0,9.9l6.31,6.31a1,1,0,0,1,.18,1.15,49.76,49.76,0,0,0-2,4.85,1,1,0,0,1-.94.68H7a7,7,0,0,0-7,7V73a7,7,0,0,0,7,7h8.93a1,1,0,0,1,.94.68,49.9,49.9,0,0,0,2,4.85,1,1,0,0,1-.18,1.15L12.38,93a7,7,0,0,0,0,9.9l12.73,12.73a7,7,0,0,0,9.9,0l6.31-6.31a1,1,0,0,1,1.15-.18,49.76,49.76,0,0,0,4.85,2,1,1,0,0,1,.68.94V121a7,7,0,0,0,7,7H73a7,7,0,0,0,7-7v-8.93a1,1,0,0,1,.68-.94,49.9,49.9,0,0,0,4.85-2,1,1,0,0,1,1.15.18L93,115.62a7,7,0,0,0,9.9,0l12.73-12.73a7,7,0,0,0,0-9.9l-6.31-6.31a1,1,0,0,1-.18-1.15,49.76,49.76,0,0,0,2-4.85,1,1,0,0,1,.94-.68H121a7,7,0,0,0,7-7V55A7,7,0,0,0,121,48Zm1,25a1,1,0,0,1-1,1h-8.93a7,7,0,0,0-6.6,4.69,43.9,43.9,0,0,1-1.76,4.26,7,7,0,0,0,1.35,8l6.31,6.31a1,1,0,0,1,0,1.41L98.65,111.38a1,1,0,0,1-1.41,0l-6.31-6.31a7,7,0,0,0-8-1.35,43.88,43.88,0,0,1-4.27,1.76,7,7,0,0,0-4.68,6.6V121a1,1,0,0,1-1,1H55a1,1,0,0,1-1-1v-8.93a7,7,0,0,0-4.69-6.6,43.9,43.9,0,0,1-4.26-1.76,7,7,0,0,0-8,1.35l-6.31,6.31a1,1,0,0,1-1.41,0L16.62,98.65a1,1,0,0,1,0-1.41l6.31-6.31a7,7,0,0,0,1.35-8,43.88,43.88,0,0,1-1.76-4.27A7,7,0,0,0,15.93,74H7a1,1,0,0,1-1-1V55a1,1,0,0,1,1-1h8.93a7,7,0,0,0,6.6-4.69,43.9,43.9,0,0,1,1.76-4.26,7,7,0,0,0-1.35-8l-6.31-6.31a1,1,0,0,1,0-1.41L29.35,16.62a1,1,0,0,1,1.41,0l6.31,6.31a7,7,0,0,0,8,1.35,43.88,43.88,0,0,1,4.27-1.76A7,7,0,0,0,54,15.93V7a1,1,0,0,1,1-1H73a1,1,0,0,1,1,1v8.93a7,7,0,0,0,4.69,6.6,43.9,43.9,0,0,1,4.26,1.76,7,7,0,0,0,8-1.35l6.31-6.31a1,1,0,0,1,1.41,0l12.73,12.73a1,1,0,0,1,0,1.41l-6.31,6.31a7,7,0,0,0-1.35,8,43.88,43.88,0,0,1,1.76,4.27,7,7,0,0,0,6.6,4.68H121a1,1,0,0,1,1,1Z" />
+                    </svg>
+                </div>
+            </span>
+        </div>
+    </header>
+    <main>
+        <section id="dashboard">
+            <div class="dashboard-overview">
+                <div class="dashboard-overview-item">
+                    <p><span class="icao_dep icao">ICAO</span><span class="iata_dep"></span></p>
+                    <p class="name_dep"></p>
+                    <p class="sched_out_date">ETD -</p>
+                    <p class="sched_out">--:-- UTC</p>
+                    <div class="dashboard-overview-link" id="btn_cond_dep">View Conditions</div>
+                    <a class="dashboard-overview-link" href="https://charts.navigraph.com">Origin Chart</a>
+                </div>
+                <div class="dashboard-overview-item">
+                    <p><span class="icao_arr icao">ICAO</span><span class="iata_arr"></span></p>
+                    <p class="name_arr"></p>
+                    <p class="sched_in_date">ETA -</p>
+                    <p class="sched_in">--:-- UTC</p>
+                    <div class="dashboard-overview-link" id="btn_cond_arr">View Conditions</div>
+                    <a class="dashboard-overview-link" href="https://charts.navigraph.com">Arrival Chart</a>
+                </div>
+            </div>
+            <div class="dashboard-summary">
+                <div class="dashboard-summary-item">
+                    <img src="../static/img/icons/fmc.png" alt="">
+                    <p>FMC Summary</p>
+                    <div class="dashboard-summary-link">View Details</div>
+                </div>
+                <div class="dashboard-summary-item">
+                    <img src="../static/img/icons/weight.png" alt="">
+                    <p>Fuel & Weights Summary</p>
+                    <div class="dashboard-summary-link">View Details</div>
+                </div>
+                <div class="dashboard-summary-item">
+                    <img src="../static/img/icons/takeoff.png" alt="">
+                    <p>Departure NOTAMS</p>
+                    <div class="dashboard-summary-link">View Details</div>
+                </div>
+                <div class="dashboard-summary-item">
+                    <img src="../static/img/icons/landing.png" alt="">
+                    <p>Arrival NOTAMS</p>
+                    <div class="dashboard-summary-link">View Details</div>
+                </div>
+                <div class="dashboard-summary-item">
+                    <img src="../static/img/icons/alternates.png" alt="">
+                    <p>Alternates</p>
+                    <div class="dashboard-summary-link">View Details</div>
+                </div>
+            </div>
+            <div class="dashboard-map" id="dashboard-map">
+                <div class="dashboard-map-fitbound">
+                    <svg class="icon icon-tabler icon-tabler-route" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="6" cy="19" r="2" />
+                        <circle cx="18" cy="5" r="2" />
+                        <path d="M12 19h4.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h3.5" />
+                    </svg>
+                </div>
+            </div>
+        </section>
+        <section id="briefing">
+            <div id="flt-fldr">FLT FLDR</div>
+            <div class="briefing-folder">
+                <ul>
+                    <li class="briefing-folder-li">
+                        <p>FLT PLAN</p>
+                        <button class="briefing-folder-sign-btn" id="briefing-folder-sign">Sign</button>
+                    </li>
+                    <li class="local-variable active" data-local-save="flt_summary">Flt Summary</li>
+                    <li class="local-variable" data-local-save="flt_time">Time Summary</li>
+                    <li class="local-variable" data-local-save="flt_weight">Fuel & Weights</li>
+                    <li class="local-variable" data-local-save="flt_altn">Alternate</li>
+                    <li class="local-variable" data-local-save="flt_log">
+                        <p>Journey Log</p>
+                        <button class="briefing-folder-sign-btn" id="briefing-folder-journey-sign">Sign</button>
+                    </li>
+                    <li class="briefing-folder-li">DISPATCH WX</li>
+                    <li class="local-variable" data-local-save="dis_wx_dep">Departure</li>
+                    <li class="local-variable" data-local-save="dis_wx_enr">Enroute</li>
+                    <li class="local-variable" data-local-save="dis_wx_arr">Destination</li>
+                    <li class="local-variable" data-local-save="dis_wx_altn">Alternate</li>
+                    <li class="local-variable" data-local-save="dis_wx_chart">Charts</li>
+                    <li class="briefing-folder-li">NOTAMs</li>
+                    <li class="local-variable" data-local-save="notam_dep">Departure</li>
+                    <li class="local-variable" data-local-save="notam_dest">Destination</li>
+                    <li class="local-variable" data-local-save="notam_altn">Alternate</li>
+                </ul>
+            </div>
+            <div id="flt-fldr-title">Flt Summary</div>
+            <div class="briefing-wrapper">
+                <div class="briefing-item active" id="brief-flt-summary">
+                    <ul>
+                        <li class="briefing-item-li-header">
+                            <div class="callsign">BO201</div>
+                            <p class="dispatch_info">
+                                Flight Plan ID 006892 <br>
+                                Dispatched by SIMBRIEF DISPATCH <br>
+                                Computed Time: 05 Mar 2018 16:00 UTC
+                            </p>
+                        </li>
+                        <li>
+                            <h1>Captain</h1>
+                            <p>Sebastian</p>
+                        </li>
+                        <hr>
+                        <li>
+                            <h1>AC ID</h1>
+                            <p>777A / CISLAB4 / BO201</p>
+                        </li>
+                        <hr>
+                        <li class="briefing-item-li-vertical-left">
+                            <h1>Routing</h1>
+                            <p>KOR2T KOR UL53 GARTA UV60 YNN UL604 DIMIS DCT RETRA DCT KUSIB DCT ROLBA DCT SIMBA DCT
+                                AKINI T161 ERNAS Y101 OSBIT L984 ASKIK T840 GULKO GULK24</p>
+                        </li>
+                        <hr>
+                        <li>
+                            <h1>ATIS</h1>
+                            <button class="briefing-item-data-insert">Insert</button>
+                            <button>Cancel</button>
+                            <textarea class="local-variable" cols="30" rows="1" spellcheck="false"
+                                data-local-save="atis_info"></textarea>
+                        </li>
+                        <hr>
+                        <li>
+                            <h1>ATC Clearance</h1>
+                            <button class="briefing-item-data-insert">Insert</button>
+                            <button>Cancel</button>
+                            <textarea class="local-variable" cols="30" rows="1" spellcheck="false"
+                                data-local-save="atc_clr"></textarea>
+                        </li>
+                        <hr>
+                        <li class="briefing-table">
+                            <span>
+                                <h1>GND DIST</h1>
+                                <p>3075</p>
+                            </span>
+                            <span>
+                                <h1>Air DIST</h1>
+                                <p>2892</p>
+                            </span>
+                            <span>
+                                <h1>Cost Index</h1>
+                                <p>10</p>
+                            </span>
+                            <span>
+                                <h1>Performance Factor</h1>
+                                <p>1</p>
+                            </span>
+                            <span>
+                                <h1>AVG W/C</h1>
+                                <p>096/013</p>
+                            </span>
+                            <span>
+                                <h1>AVG ISA</h1>
+                                <p>M000</p>
+                            </span>
+                            <span>
+                                <h1>ZFW</h1>
+                                <p>251722</p>
+                            </span>
+                            <span>
+                                <h1>TOW</h1>
+                                <p>335080</p>
+                            </span>
+                            <span>
+                                <h1>LWT</h1>
+                                <p>266967</p>
+                            </span>
+                            <span>
+                                <h1>ALTN</h1>
+                                <p>OMAA/AUH</p>
+                            </span>
+                        </li>
+                        <hr>
+                        <li>
+                            <h1>FL STEPS</h1>
+                            <p>LGAV/0340/</p>
+                        </li>
+                        <hr>
+                        <li>
+                            <h1>DISP RMKS</h1>
+                            <p>NIL</p>
+                        </li>
+                        <li>
+                            <h1>Dispatcher</h1>
+                            <p>Iris Terry</p>
+                        </li>
+                        <hr>
+                        <li class="briefing-table">
+                            <span>
+                                <h1>First Officer</h1>
+                                <p>Felix Cleveland</p>
+                            </span>
+                            <span>
+                                <h1>Purser</h1>
+                                <p>Israel McMillan</p>
+                            </span>
+                            <span>
+                                <h1>Flight Attendant</h1>
+                                <p>
+                                    Hattie Johns <br>
+                                    Clint Munoz <br>
+                                    Dwight Mann <br>
+                                    Cathy Norman
+                                </p>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="briefing-item" id="brief-time-summary">
+                    <ul>
+                        <li class="briefing-item-li-header">
+                            <div class="callsign">BO201</div>
+                            <p class="dispatch_info">
+                                Flight Plan ID 006892 <br>
+                                Dispatched by SIMBRIEF DISPATCH <br>
+                                Computed Time: 05 Mar 2018 16:00 UTC
+                            </p>
+                        </li>
+                        <li class="briefing-table briefing-table-timezones">
+                            <span>
+                                <h1 class="briefing-table-column-title">UTC</h1>
+                            </span>
+                            <span>
+                                <h1 class="briefing-table-column-title">Origin</h1>
+                            </span>
+                            <span>
+                                <h1 class="briefing-table-column-title">Destination</h1>
+                            </span>
+                            <span>
+                                <h1>Time Zones</h1>
+                            </span>
+                            <span>
+                                <p>17:30</p>
+                            </span>
+                            <span>
+                                <p>15:30</p>
+                            </span>
+                            <span>
+                                <p>20:30</p>
+                            </span>
+                        </li>
+                        <hr>
+                        <li>
+                            <h1>6h9m / 2892 NM</h1>
+                        </li>
+                        <li class="briefing-table briefing-table-times">
+                            <span>
+                                <h1 class="briefing-table-column-title">Off Block</h1>
+                            </span>
+                            <span>
+                                <h1 class="briefing-table-column-title">Takeoff</h1>
+                            </span>
+                            <span>
+                                <h1 class="briefing-table-column-title">Landing</h1>
+                            </span>
+                            <span>
+                                <h1 class="briefing-table-column-title">On Block</h1>
+                            </span>
+                            <span>
+                                <h1>Scheduled</h1>
+                            </span>
+                            <span>
+                                <p>05 Mar 17:30</p>
+                            </span>
+                            <span>
+                                <p>05 Mar 23:40</p>
+                            </span>
+                            <span>
+                                <p>05 Mar 17:30</p>
+                            </span>
+                            <span>
+                                <p>05 Mar 17:30</p>
+                            </span>
+                            <span>
+                                <h1>Estimated</h1>
+                            </span>
+                            <span>
+                                <p>05 Mar 23:40</p>
+                            </span>
+                            <span>
+                                <p>05 Mar 23:40</p>
+                            </span>
+                            <span>
+                                <p>05 Mar 23:40</p>
+                            </span>
+                            <span>
+                                <p>05 Mar 23:40</p>
+                            </span>
+                            <span>
+                                <h1>Actual</h1>
+                            </span>
+                            <span>
+                                <button class="briefing-item-data-insert no-cancel">Insert</button>
+                                <button></button>
+                                <input class="local-variable" type="time" data-local-save="out_time">
+                                <div class="unit">UTC</div>
+                            </span>
+                            <span>
+                                <button class="briefing-item-data-insert no-cancel">Insert</button>
+                                <button></button>
+                                <input class="local-variable" type="time" data-local-save="off_time">
+                                <div class="unit">UTC</div>
+                            </span>
+                            <span>
+                                <button class="briefing-item-data-insert no-cancel">Insert</button>
+                                <button></button>
+                                <input class="local-variable" type="time" data-local-save="on_time">
+                                <div class="unit">UTC</div>
+                            </span>
+                            <span>
+                                <button class="briefing-item-data-insert no-cancel">Insert</button>
+                                <button></button>
+                                <input class="local-variable" type="time" data-local-save="in_time">
+                                <div class="unit">UTC</div>
+                            </span>
+                        </li>
+                        <hr>
+                        <li>
+                            <h1>Delay Code</h1>
+                            <button class="briefing-item-data-insert">Add</button>
+                            <button>Cancel</button>
+                            <select class="local-variable" data-local-save="delay">
+                                <option disabled>Others</option>
+                                <option value="05">00-05 / AIRLINE INTERNAL CODES</option>
+                                <option value="06">06 (OA) / NO GATE/STAND AVAILABILITY DUE TO OWN AIRLINE ACTIVITY
+                                </option>
+                                <option value="09">09 (SG) / SCHEDULED GROUND TIME LESS THAN DECLARED MINIMUM GROUND
+                                    TIME
+                                </option>
+                                <option disabled>Passenger and Baggage</option>
+                                <option value="11">11 (PD) / LATE CHECK-IN</option>
+                                <option value="12">12 (PL) / LATE CHECK-IN</option>
+                                <option value="13">13 (PE) / CHECK-IN ERROR</option>
+                                <option value="14">14 (PO) / OVERSALES</option>
+                            </select>
+                        </li>
+                        <hr>
+                        <li>
+                            <h1 class="briefing-table-title">Impacts</h1>
+                        </li>
+                        <li class="briefing-table">
+                            <span>
+                                <h1>WEIGHT UP 1.0</h1>
+                                <p>0</p>
+                            </span>
+                            <span>
+                                <h1>WEIGHT DN 1.0</h1>
+                                <p>0</p>
+                            </span>
+                            <span>
+                                <h1>FL UP FL1</h1>
+                                <p>-1</p>
+                            </span>
+                            <span>
+                                <h1>FL DN FL1</h1>
+                                <p>+1</p>
+                            </span>
+                            <span>
+                                <h1>CI 0</h1>
+                                <p>+2</p>
+                            </span>
+                            <span>
+                                <h1>CI 100</h1>
+                                <p>-6</p>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="briefing-item" id="brief-weight-summary">
+                    <ul>
+                        <li class="briefing-item-li-header">
+                            <div class="callsign">BO201</div>
+                            <p class="dispatch_info">
+                                Flight Plan ID 006892 <br>
+                                Dispatched by SIMBRIEF DISPATCH <br>
+                                Computed Time: 05 Mar 2018 16:00 UTC
+                            </p>
+                        </li>
+                        <li class="briefing-table briefing-table-weight">
+                            <span>
+                                <h1 class="briefing-table-column-title">TOW</h1>
+                            </span>
+                            <span>
+                                <h1 class="briefing-table-column-title">LAW</h1>
+                            </span>
+                            <span>
+                                <h1 class="briefing-table-column-title">ZFW</h1>
+                            </span>
+                            <span>
+                                <h1 class="briefing-table-column-title">FUEL</h1>
+                            </span>
+                            <span>
+                                <h1>Maximum</h1>
+                            </span>
+                            <span>
+                                <p>79333</p>
+                            </span>
+                            <span>
+                                <p>66361</p>
+                            </span>
+                            <span>
+                                <p>62732</p>
+                            </span>
+                            <span>
+                                <p>20891</p>
+                            </span>
+                            <span>
+                                <h1>Estimated</h1>
+                            </span>
+                            <span>
+                                <p>71845</p>
+                            </span>
+                            <span>
+                                <p>64667</p>
+                            </span>
+                            <span>
+                                <p>61601</p>
+                            </span>
+                            <span>
+                                <p>10471</p>
+                            </span>
+                            <span>
+                                <h1>Actual</h1>
+                            </span>
+                            <span>
+                                <button class="briefing-item-data-insert no-cancel">Insert</button>
+                                <button></button>
+                                <input class="local-variable" type="number" data-local-save="tow">
+                                <div class="unit">kg</div>
+                            </span>
+                            <span>
+                                <button class="briefing-item-data-insert no-cancel">Insert</button>
+                                <button></button>
+                                <input class="local-variable" type="number" data-local-save="ldw">
+                                <div class="unit">kg</div>
+                            </span>
+                            <span>
+                                <button class="briefing-item-data-insert no-cancel">Insert</button>
+                                <button></button>
+                                <input class="local-variable" type="number" data-local-save="zfw">
+                                <div class="unit">kg</div>
+                            </span>
+                            <span>
+                                <button class="briefing-item-data-insert no-cancel">Insert</button>
+                                <button></button>
+                                <input class="local-variable" type="number" data-local-save="fuel">
+                                <div class="unit">kg</div>
+                            </span>
+                        </li>
+                        <hr>
+                        <li class="briefing-table">
+                            <span>
+                                <h1>TRIP</h1>
+                                <p>7178</p>
+                            </span>
+                            <span>
+                                <h1>CONT</h1>
+                                <p>422</p>
+                            </span>
+                            <span>
+                                <h1>ALTN</h1>
+                                <p>1522</p>
+                            </span>
+                            <span>
+                                <h1>FINRES</h1>
+                                <p>1122</p>
+                            </span>
+                            <span>
+                                <h1>MINIMUM T/OFF</h1>
+                                <p>10244</p>
+                            </span>
+                            <span>
+                                <h1>EXTRA</h1>
+                                <p>0</p>
+                            </span>
+                            <span>
+                                <h1>T/OFF</h1>
+                                <p>10244</p>
+                            </span>
+                            <span>
+                                <h1>TAXI</h1>
+                                <p>227</p>
+                            </span>
+                            <span>
+                                <h1>BLOCK</h1>
+                                <p>10471</p>
+                            </span>
+                            <span>
+                                <h1>FINRES+ALTN</h1>
+                                <p>2644</p>
+                            </span>
+                        </li>
+                        <hr>
+                        <li>
+                            <h1>PIC EXTRA</h1>
+                            <button class="briefing-item-data-insert">Add</button>
+                            <button>Cancel</button>
+                            <input class="local-variable" type="number" data-local-save="extra_fuel">
+                            <div class="unit">kg</div>
+                        </li>
+                        <hr>
+                        <li>
+                            <h1>Average Fuel Flow</h1>
+                            <p>2532</p>
+                        </li>
+                        <hr>
+                        <li class="briefing-table">
+                            <span>
+                                <h1>PAX</h1>
+                                <p>174</p>
+                            </span>
+                            <span>
+                                <h1>BAGS</h1>
+                                <p>174</p>
+                            </span>
+                            <span>
+                                <h1>PAX ACT.</h1>
+                                <button class="briefing-item-data-insert no-cancel">Insert</button>
+                                <button>X</button>
+                                <input class="local-variable" type="number" data-local-save="act_pax">
+                            </span>
+                            <span>
+                                <h1>BAGS ACT.</h1>
+                                <button class="briefing-item-data-insert no-cancel">Insert</button>
+                                <button>X</button>
+                                <input class="local-variable" type="number" data-local-save="act_cargo">
+                            </span>
+                            <span>
+                                <h1>PAX WEIGHT</h1>
+                                <p>86</p>
+                            </span>
+                            <span>
+                                <h1>BAG WEIGHT</h1>
+                                <p>24</p>
+                            </span>
+                            <span>
+                                <h1>CARGO</h1>
+                                <p>4341</p>
+                            </span>
+                            <span>
+                                <h1>PAYLOAD</h1>
+                                <p>19337</p>
+                            </span>
+                        </li>
+                        <hr>
+                        <li>
+                            <h1>Extra Freight</h1>
+                            <button>Insert extra freight</button>
+                        </li>
+                        <hr>
+                        <li>
+                            <h1 class="briefing-table-title">Impacts</h1>
+                        </li>
+                        <li class="briefing-table">
+                            <span>
+                                <h1>WEIGHT UP 1.0</h1>
+                                <p>+92</p>
+                            </span>
+                            <span>
+                                <h1>WEIGHT DN 1.0</h1>
+                                <p>-89</p>
+                            </span>
+                            <span>
+                                <h1>FL UP FL1</h1>
+                                <p>+77</p>
+                            </span>
+                            <span>
+                                <h1>FL DN FL1</h1>
+                                <p>-114</p>
+                            </span>
+                            <span>
+                                <h1>CI 0</h1>
+                                <p>-109</p>
+                            </span>
+                            <span>
+                                <h1>CI 100</h1>
+                                <p>+275</p>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="briefing-item" id="brief-alternate-summary">
+                    <ul>
+                        <li class="briefing-item-li-header">
+                            <div class="callsign">BO201</div>
+                            <p class="dispatch_info">
+                                Flight Plan ID 006892 <br>
+                                Dispatched by SIMBRIEF DISPATCH <br>
+                                Computed Time: 05 Mar 2018 16:00 UTC
+                            </p>
+                        </li>
+                        <li>
+                            <h1>Alternate #1</h1>
+                            <p>EDDF/FRA</p>
+                        </li>
+                        <hr>
+                        <li class="briefing-table">
+                            <span>
+                                <h1>FL</h1>
+                                <p>FL230</p>
+                            </span>
+                            <span>
+                                <h1>DIST</h1>
+                                <p>143</p>
+                            </span>
+                            <span>
+                                <h1>AVG W/C</h1>
+                                <p>M004</p>
+                            </span>
+                            <span>
+                                <h1>BURN</h1>
+                                <p>1519</p>
+                            </span>
+                        </li>
+                        <hr>
+                        <li class="briefing-item-li-vertical-left">
+                            <h1>ROUTING</h1>
+                            <p>COL6D COL T911 ROLIS ROLI4D</p>
+                        </li>
+                    </ul>
+                </div>
+                <div class="briefing-item" id="brief-journey-summary">
+                    <ul>
+                        <li class="briefing-item-li-header">
+                            <div class="callsign">BO201</div>
+                            <p class="dispatch_info">
+                                Flight Plan ID 006892 <br>
+                                Dispatched by SIMBRIEF DISPATCH <br>
+                                Computed Time: 05 Mar 2018 16:00 UTC
+                            </p>
+                        </li>
+                        <li>
+                            <h1>Author</h1>
+                            <button class="briefing-item-data-insert">Enter Author</button>
+                            <button>Cancel</button>
+                            <input class="local-variable" type="text" data-local-save="journey_author">
+                        </li>
+                        <li>
+                            <h1>Unscheduled Flight</h1>
+                            <div class="toggle-button">
+                                <button class="briefing-item-data-insert no-cancel"></button>
+                                <button></button>
+                                <input type="checkbox" class="toggle-button-checkbox local-variable"
+                                    data-local-save="journey_unsched">
+                                <div class="toggle-button-knobs"></div>
+                                <div class="toggle-button-layer"></div>
+                            </div>
+                        </li>
+                        <li>
+                            <h1>Training Flight</h1>
+                            <div class="toggle-button">
+                                <button class="briefing-item-data-insert no-cancel"></button>
+                                <button></button>
+                                <input type="checkbox" class="toggle-button-checkbox local-variable"
+                                    data-local-save="journey_training">
+                                <div class="toggle-button-knobs"></div>
+                                <div class="toggle-button-layer"></div>
+                            </div>
+                        </li>
+                        <hr>
+                        <li>
+                            <h1 class="briefing-table-title">Pilot Responsibilities</h1>
+                        </li>
+                        <li>
+                            <h1>Take Off</h1>
+                            <button class="briefing-item-data-insert">Select Pilot</button>
+                            <button>Cancel</button>
+                            <input class="local-variable" type="text" data-local-save="pilot_toff">
+                        </li>
+                        <li>
+                            <h1>Cruise Pilot</h1>
+                            <button class="briefing-item-data-insert">Select Pilot</button>
+                            <button>Cancel</button>
+                            <input class="local-variable" type="text" data-local-save="pilot_cruise">
+                        </li>
+                        <li>
+                            <h1>Cruise Time</h1>
+                            <button class="briefing-item-data-insert">Cruise Time</button>
+                            <button>Cancel</button>
+                            <input class="local-variable" type="text" data-local-save="time_cruise">
+                        </li>
+                        <li>
+                            <h1>Landing</h1>
+                            <button class="briefing-item-data-insert">Landing</button>
+                            <button>Cancel</button>
+                            <input class="local-variable" type="text" data-local-save="pilot_land">
+                        </li>
+                        <hr>
+                        <li>
+                            <h1>Incident</h1>
+                            <button class="briefing-item-data-insert">Add</button>
+                            <button>Cancel</button>
+                            <select class="local-variable" data-local-save="incident_type">
+                                <option disabled>Add Incident Type</option>
+                                <option value="Medical">Medical</option>
+                                <option value="Passenger">Passenger</option>
+                                <option value="Personnel">Personnel</option>
+                                <option value="Incident">Incident</option>
+                                <option value="General comment">General comment</option>
+                                <option value="Emergency">Emergency</option>
+                                <option value="Equipment">Equipment</option>
+                            </select>
+                        </li>
+                        <li>
+                            <h1>Incident Remarks</h1>
+                            <button class="briefing-item-data-insert">Insert</button>
+                            <button>Cancel</button>
+                            <textarea class="local-variable" cols="30" rows="1" spellcheck="false"
+                                data-local-save="incident_rmks"></textarea>
+                        </li>
+                    </ul>
+                </div>
+                <div class="briefing-item" id="brief-dispatch-wx-dep">
+                    <ul>
+                        <li class="briefing-item-li-header">
+                            <div class="callsign">BO201</div>
+                            <p class="dispatch_info">
+                                Flight Plan ID 006892 <br>
+                                Dispatched by SIMBRIEF DISPATCH <br>
+                                Computed Time: 05 Mar 2018 16:00 UTC
+                            </p>
+                        </li>
+                        <li class="briefing-item-li-vertical-left">
+                            <h1>METAR</h1>
+                            <p></p>
+                        </li>
+                        <hr>
+                        <li class="briefing-item-li-vertical-left">
+                            <h1>TAF</h1>
+                            <p></p>
+                        </li>
+                    </ul>
+                </div>
+                <div class="briefing-item" id="brief-dispatch-wx-enr">
+                    <ul>
+                        <li class="briefing-item-li-header">
+                            <div class="callsign">BO201</div>
+                            <p class="dispatch_info">
+                                Flight Plan ID 006892 <br>
+                                Dispatched by SIMBRIEF DISPATCH <br>
+                                Computed Time: 05 Mar 2018 16:00 UTC
+                            </p>
+                        </li>
+                        <li id="brief-dispatch-wx-enr-list"></li>
+                    </ul>
+                </div>
+                <div class="briefing-item" id="brief-dispatch-wx-arr">
+                    <ul>
+                        <li class="briefing-item-li-header">
+                            <div class="callsign">BO201</div>
+                            <p class="dispatch_info">
+                                Flight Plan ID 006892 <br>
+                                Dispatched by SIMBRIEF DISPATCH <br>
+                                Computed Time: 05 Mar 2018 16:00 UTC
+                            </p>
+                        </li>
+                        <li class="briefing-item-li-vertical-left">
+                            <h1>METAR</h1>
+                            <p></p>
+                        </li>
+                        <hr>
+                        <li class="briefing-item-li-vertical-left">
+                            <h1>TAF</h1>
+                            <p></p>
+                        </li>
+                    </ul>
+                </div>
+                <div class="briefing-item" id="brief-dispatch-wx-altn">
+                    <ul>
+                        <li class="briefing-item-li-header">
+                            <div class="callsign">BO201</div>
+                            <p class="dispatch_info">
+                                Flight Plan ID 006892 <br>
+                                Dispatched by SIMBRIEF DISPATCH <br>
+                                Computed Time: 05 Mar 2018 16:00 UTC
+                            </p>
+                        </li>
+                        <li class="briefing-item-li-vertical-left">
+                            <h1>METAR</h1>
+                            <p></p>
+                        </li>
+                        <hr>
+                        <li class="briefing-item-li-vertical-left">
+                            <h1>TAF</h1>
+                            <p></p>
+                        </li>
+                    </ul>
+                </div>
+                <div class="briefing-item" id="brief-dispatch-wx-chart">
+                    <ul>
+                        <li class="briefing-item-li-header">
+                            <div class="callsign">BO201</div>
+                            <p class="dispatch_info">
+                                Flight Plan ID 006892 <br>
+                                Dispatched by SIMBRIEF DISPATCH <br>
+                                Computed Time: 05 Mar 2018 16:00 UTC
+                            </p>
+                        </li>
+                    </ul>
+                </div>
+                <div class="briefing-item" id="brief-notam-dep">
+                    <ul>
+                        <li class="briefing-item-li-header">
+                            <div class="callsign">BO201</div>
+                            <p class="dispatch_info">
+                                Flight Plan ID 006892 <br>
+                                Dispatched by SIMBRIEF DISPATCH <br>
+                                Computed Time: 05 Mar 2018 16:00 UTC
+                            </p>
+                        </li>
+                    </ul>
+                </div>
+                <div class="briefing-item" id="brief-notam-arr">
+                    <ul>
+                        <li class="briefing-item-li-header">
+                            <div class="callsign">BO201</div>
+                            <p class="dispatch_info">
+                                Flight Plan ID 006892 <br>
+                                Dispatched by SIMBRIEF DISPATCH <br>
+                                Computed Time: 05 Mar 2018 16:00 UTC
+                            </p>
+                        </li>
+                    </ul>
+                </div>
+                <div class="briefing-item" id="brief-notam-altn">
+                    <ul>
+                        <li class="briefing-item-li-header">
+                            <div class="callsign">BO201</div>
+                            <p class="dispatch_info">
+                                Flight Plan ID 006892 <br>
+                                Dispatched by SIMBRIEF DISPATCH <br>
+                                Computed Time: 05 Mar 2018 16:00 UTC
+                            </p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        <section id="navigation">
+            <div class="navigation-header">
+                <div class="navigation-header-toggle-mode">Switch To List Mode</div>
+                <div class="navigation-header-active-wp">
+                    <div>
+                        <h1>ACTIVE</h1>
+                        <p id="navigation-header-airport">LGAV</p>
+                    </div>
+                    <div>
+                        <h1>TIME</h1>
+                        <p id="navigation-header-time">19:00</p>
+                    </div>
+                    <div>
+                        <h1>FUEL</h1>
+                        <p id="navigation-header-fuel">6490</p>
+                    </div>
+                </div>
+            </div>
+            <div class="dashboard-map" id="navigation-map">
+                <div class="dashboard-map-fitbound">
+                    <svg class="icon icon-tabler icon-tabler-route" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="6" cy="19" r="2" />
+                        <circle cx="18" cy="5" r="2" />
+                        <path d="M12 19h4.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h3.5" />
+                    </svg>
+                </div>
+            </div>
+            <div class="navigation-list">
+                <ul></ul>
+            </div>
+        </section>
+        <section id="documents">
+            <div id="documents-library">LIBRARY</div>
+            <div class="documents-folder">
+                <ul>
+                    <li>
+                        <div class="documents-folder-symbol"></div>
+                        <p>Aircraft</p>
+                    </li>
+                    <li>
+                        <div class="documents-folder-symbol"></div>
+                        <p>Checklist</p>
+                    </li>
+                    <li>
+                        <div class="documents-folder-symbol"></div>
+                        <p>Briefing</p>
+                    </li>
+                    <li>
+                        <div class="documents-folder-symbol"></div>
+                        <p>Others</p>
+                    </li>
+                </ul>
+            </div>
+            <div id="document-viewer">
+                <div id="documents-open-documents">
+                    <div>Checklist</div>
+                    <div>QRH</div>
+                </div>
+                <div id="pdf-viewer">
+                    <div class="pdf-viewer-controls">
+                        <div id="pdf-zoom-in">
+                            <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2.5C10 2.22386 9.77614 2 9.5 2C9.22386 2 9 2.22386 9 2.5V9H2.5C2.22386 9 2 9.22386 2 9.5C2 9.77614 2.22386 10 2.5 10H9V16.5C9 16.7761 9.22386 17 9.5 17C9.77614 17 10 16.7761 10 16.5V10H16.5C16.7761 10 17 9.77614 17 9.5C17 9.22386 16.7761 9 16.5 9H10V2.5Z"/></svg>
+                        </div>
+                        <div id="pdf-zoom-out">
+                            <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M3 10C3 9.72386 3.22386 9.5 3.5 9.5H16.5C16.7761 9.5 17 9.72386 17 10C17 10.2761 16.7761 10.5 16.5 10.5H3.5C3.22386 10.5 3 10.2761 3 10Z"/></svg>
+                        </div>
+                        <div id="pdf-fit-height">
+                            <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M4 2C3.72386 2 3.5 2.22386 3.5 2.5C3.5 2.77614 3.72386 3 4 3H15C15.2761 3 15.5 2.77614 15.5 2.5C15.5 2.22386 15.2761 2 15 2H4ZM4 17C3.72386 17 3.5 17.2239 3.5 17.5C3.5 17.7761 3.72386 18 4 18H15C15.2761 18 15.5 17.7761 15.5 17.5C15.5 17.2239 15.2761 17 15 17H4ZM9.14645 5.14645C9.34171 4.95118 9.65829 4.95118 9.85355 5.14645L11.8536 7.14645C12.0488 7.34171 12.0488 7.65829 11.8536 7.85355C11.6583 8.04882 11.3417 8.04882 11.1464 7.85355L10 6.70711V13.2929L11.1464 12.1464C11.3417 11.9512 11.6583 11.9512 11.8536 12.1464C12.0488 12.3417 12.0488 12.6583 11.8536 12.8536L9.85355 14.8536C9.65829 15.0488 9.34171 15.0488 9.14645 14.8536L7.14645 12.8536C6.95118 12.6583 6.95118 12.3417 7.14645 12.1464C7.34171 11.9512 7.65829 11.9512 7.85355 12.1464L9 13.2929V6.70711L7.85355 7.85355C7.65829 8.04882 7.34171 8.04882 7.14645 7.85355C6.95118 7.65829 6.95118 7.34171 7.14645 7.14645L9.14645 5.14645Z"/></svg>
+                        </div>
+                        <div id="pdf-fit-width">
+                            <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M18 4.25C18 3.83579 17.6642 3.5 17.25 3.5C16.8358 3.5 16.5 3.83579 16.5 4.25L16.5 15.25C16.5 15.6642 16.8358 16 17.25 16C17.6642 16 18 15.6642 18 15.25V4.25ZM3.5 4.25C3.5 3.83579 3.16421 3.5 2.75 3.5C2.33579 3.5 2 3.83579 2 4.25L2 15.25C2 15.6642 2.33579 16 2.75 16C3.16421 16 3.5 15.6642 3.5 15.25L3.5 4.25ZM5.21967 10.2803L7.21967 12.2803C7.51256 12.5732 7.98744 12.5732 8.28033 12.2803C8.57322 11.9874 8.57322 11.5126 8.28033 11.2197L7.56066 10.5L12.4393 10.5L11.7197 11.2197C11.4268 11.5126 11.4268 11.9874 11.7197 12.2803C12.0126 12.5732 12.4874 12.5732 12.7803 12.2803L14.7803 10.2803C15.0732 9.98744 15.0732 9.51256 14.7803 9.21967L12.7803 7.21967C12.4874 6.92678 12.0126 6.92678 11.7197 7.21967C11.4268 7.51256 11.4268 7.98744 11.7197 8.28033L12.4393 9L7.56066 9L8.28033 8.28033C8.57322 7.98744 8.57322 7.51256 8.28033 7.21967C7.98744 6.92678 7.51256 6.92678 7.21967 7.21967L5.21967 9.21967C4.92678 9.51256 4.92678 9.98744 5.21967 10.2803Z"/></svg>
+                        </div>
+                    </div>
+                    <div id="pdf-viewer-container"></div>
+                </div>
+            </div>
+        </section>
+        <section id="tools">
+
+        </section>
+        <section id="notepad">
+            <div class="notepad-bar">
+                <div class="notepad-bar-item" data-clear="true">X</div>
+                <div class="notepad-bar-item" data-eraser="true">
+                    <svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M15.8698 2.66878L20.8384 7.6373C21.717 8.51598 21.717 9.9406 20.8384 10.8193L12.1566 19.4998L18.2544 19.5C18.6341 19.5 18.9479 19.7821 18.9976 20.1482L19.0044 20.25C19.0044 20.6297 18.7223 20.9435 18.3562 20.9931L18.2544 21L9.84443 21.0012C9.22822 21.0348 8.60082 20.8163 8.1301 20.3456L3.16157 15.377C2.28289 14.4984 2.28289 13.0737 3.16157 12.1951L12.6879 2.66878C13.5665 1.7901 14.9912 1.7901 15.8698 2.66878ZM5.70856 11.7678L4.22223 13.2557C3.92934 13.5486 3.92934 14.0235 4.22223 14.3164L9.19076 19.2849C9.33721 19.4314 9.52915 19.5046 9.72109 19.5046L9.74997 19.5L9.78846 19.5016C9.95737 19.4864 10.1221 19.4142 10.2514 19.2849L11.7376 17.7978L5.70856 11.7678ZM13.7485 3.72944L6.76956 10.7068L12.7986 16.7368L19.7777 9.75862C20.0706 9.46573 20.0706 8.99085 19.7777 8.69796L14.8092 3.72944C14.5163 3.43654 14.0414 3.43654 13.7485 3.72944Z" />
+                    </svg>
+                </div>
+                <div class="notepad-bar-item" data-color="white" data-eraser="false"><span
+                        style="background: white"></span></div>
+                <div class="notepad-bar-item" data-color="red" data-eraser="false"><span style="background: red"></span>
+                </div>
+                <div class="notepad-bar-item" data-color="green" data-eraser="false"><span
+                        style="background: green"></span></div>
+                <div class="notepad-bar-item" data-color="yellow" data-eraser="false"><span
+                        style="background: yellow"></span></div>
+                <div class="notepad-bar-item" data-linewidth="18"><span></span></div>
+                <div class="notepad-bar-item" data-linewidth="6"><span style="width: .6rem; height: .6rem;"></span>
+                </div>
+                <div class="notepad-bar-item" data-linewidth="2"><span style="width: .3rem; height: .3rem;"></span>
+                </div>
+            </div>
+            <div class="notepad-canvas" id="notepad-canvas-notes">
+                <canvas>Your browser does not support canvas element.</canvas>
+            </div>
+        </section>
+    </main>
+    <nav>
+        <a class="active" href="#dashboard">
+            <svg viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                xmlns:svg="http://www.w3.org/2000/svg">
+                <path
+                    d="M 1,10 H 7 A 1,1 0 0 0 8,9 V 1 A 1,1 0 0 0 7,0 H 1 A 1,1 0 0 0 0,1 v 8 a 1,1 0 0 0 1,1 z m -1,7 a 1,1 0 0 0 1,1 H 7 A 1,1 0 0 0 8,17 V 13 A 1,1 0 0 0 7,12 H 1 a 1,1 0 0 0 -1,1 z m 10,0 a 1,1 0 0 0 1,1 h 6 a 1,1 0 0 0 1,-1 V 10 A 1,1 0 0 0 17,9 h -6 a 1,1 0 0 0 -1,1 z M 11,7 h 6 A 1,1 0 0 0 18,6 V 1 A 1,1 0 0 0 17,0 h -6 a 1,1 0 0 0 -1,1 v 5 a 1,1 0 0 0 1,1 z" />
+            </svg>
+            <p>Dashboard</p>
+        </a>
+        <a href="#briefing">
+            <svg version="1.1" viewBox="0 0 384.00604 320.03033" xml:space="preserve" xmlns="http://www.w3.org/2000/svg"
+                xmlns:svg="http://www.w3.org/2000/svg">
+                <g transform="translate(-64.026931,-95.969677)">
+                    <path
+                        d="M 430.1,192 H 81.9 c -17.7,0 -18.6,9.2 -17.6,20.5 l 13,183 c 0.9,11.2 3.5,20.5 21.1,20.5 h 316.2 c 18,0 20.1,-9.2 21.1,-20.5 l 12.1,-185.3 c 0.9,-11.2 0,-18.2 -17.7,-18.2 z" />
+                    <g>
+                        <path
+                            d="m 426.2,143.3 c -0.5,-12.4 -4.5,-15.3 -15.1,-15.3 0,0 -121.4,0 -143.2,0 -21.8,0 -24.4,0.3 -40.9,-17.4 C 213.3,95.8 218.7,96 190.4,96 c -22.6,0 -75.3,0 -75.3,0 -17.4,0 -23.6,-1.5 -25.2,16.6 -1.5,16.7 -5,57.2 -5.5,63.4 h 343.4 z" />
+                    </g>
+                </g>
+            </svg>
+            <p>Briefing</p>
+        </a>
+        <a href="#navigation">
+            <svg id="Layer_1_1_" style="enable-background:new 0 0 16 16;" version="1.1" viewBox="0 0 16 16"
+                xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                <path d="M0,16l11-5l5-11L5,5L0,16z M2.014,13.986l3.3-7.259l3.959,3.959L2.014,13.986z" />
+            </svg>
+            <p>Navigation</p>
+        </a>
+        <a href="#documents">
+            <svg version="1.1" viewBox="0 0 288 384" xml:space="preserve" xmlns="http://www.w3.org/2000/svg"
+                xmlns:svg="http://www.w3.org/2000/svg">
+                <g transform="translate(-112.5,-64.4)">
+                    <path
+                        d="m 398.6,169.2 c -0.9,-2.2 -2,-4.3 -3.5,-6.1 L 311.3,71.4 c -1.9,-2.1 -4.2,-3.6 -6.7,-4.9 -2.9,-1.5 -6.1,-2.1 -9.5,-2.1 H 135.2 c -12.4,0 -22.7,10.6 -22.7,23.9 v 335.2 c 0,13.4 10.3,24.9 22.7,24.9 h 243.1 c 12.4,0 22.2,-11.5 22.2,-24.9 V 179.4 c 0,-3.6 -0.5,-7.1 -1.9,-10.2 z m -238.1,9.4 c 0,-1.5 1.8,-2.1 3.4,-2.1 h 70.8 c 1.6,0 2.8,0.6 2.8,2.1 v 10.8 c 0,1.4 -1.1,3.1 -2.8,3.1 h -70.8 c -1.6,0 -3.4,-1.7 -3.4,-3.1 z m 0,128 c 0,-1.5 1.8,-2.1 3.4,-2.1 h 122.2 c 1.6,0 2.4,0.6 2.4,2.1 v 10.8 c 0,1.4 -0.7,3.1 -2.4,3.1 H 163.9 c -1.6,0 -3.4,-1.7 -3.4,-3.1 z m 160,74.8 c 0,1.4 -0.7,3.1 -2.4,3.1 H 163.9 c -1.6,0 -3.4,-1.7 -3.4,-3.1 v -10.8 c 0,-1.5 1.8,-2.1 3.4,-2.1 h 154.2 c 1.6,0 2.4,0.6 2.4,2.1 z m 32,-128 c 0,1.4 -0.7,3.1 -2.4,3.1 H 163.9 c -1.6,0 -3.4,-1.7 -3.4,-3.1 v -10.8 c 0,-1.5 1.8,-2.1 3.4,-2.1 h 186.2 c 1.6,0 2.4,0.6 2.4,2.1 z m -46.9,-75.9 c -5.6,0 -11.1,-5.2 -11.1,-11.3 v -66 l 71.2,77.3 z" />
+                </g>
+            </svg>
+            <p>Documents</p>
+        </a>
+        <a href="#tools">
+            <svg version="1.1" viewBox="0 0 22 18" xml:space="preserve" xmlns="http://www.w3.org/2000/svg"
+                xmlns:svg="http://www.w3.org/2000/svg">
+                <g transform="translate(-1,-3)" />
+                <g transform="translate(-1,-3)">
+                    <g>
+                        <path
+                            d="M 5,11 H 19 C 21.2,11 23,9.2 23,7 23,4.8 21.2,3 19,3 H 5 C 2.8,3 1,4.8 1,7 1,9.2 2.8,11 5,11 Z M 5,5 C 6.1,5 7,5.9 7,7 7,8.1 6.1,9 5,9 3.9,9 3,8.1 3,7 3,5.9 3.9,5 5,5 Z" />
+                        <path
+                            d="M 19,13 H 5 c -2.2,0 -4,1.8 -4,4 0,2.2 1.8,4 4,4 h 14 c 2.2,0 4,-1.8 4,-4 0,-2.2 -1.8,-4 -4,-4 z m 0,6 c -1.1,0 -2,-0.9 -2,-2 0,-1.1 0.9,-2 2,-2 1.1,0 2,0.9 2,2 0,1.1 -0.9,2 -2,2 z" />
+                    </g>
+                </g>
+            </svg>
+            <p>Tools</p>
+        </a>
+    </nav>
+
+    <template id="template-conditions-popup">
+        <div class="popup-wrapper">
+            <div class="popup-title">
+                <p></p>
+                <button>Close</button>
+            </div>
+            <div class="popup-nav">
+                <p class="active">Raw WX</p>
+                <p>Decoded WX</p>
+            </div>
+            <div class="conditions-popup-container">
+                <div class="preloader" id="conditions-popup-preloader"></div>
+                <ul id="conditions-plain">
+                    <li class="conditions-popup-li">
+                        <div>METAR</div>
+                        <p>No data</p>
+                    </li>
+                    <li>
+                        <p>-</p>
+                    </li>
+                    <li class="conditions-popup-li">
+                        <div>TAF</div>
+                        <p>No data</p>
+                    </li>
+                    <li>
+                        <p>-</p>
+                    </li>
+                    <li class="conditions-popup-li">
+                        <div>PIREPs</div>
+                        <p>No data</p>
+                    </li>
+                    <li>
+                        <p>Coming in a feature update</p>
+                    </li>
+                </ul>
+                <ul id="conditions-decoded">
+                    <li class="conditions-popup-li">
+                        <div>METAR</div>
+                        <p>No data</p>
+                    </li>
+                    <li>
+                        <div>Wind</div>
+                        <p>-</p>
+                    </li>
+                    <li>
+                        <div>Visibility</div>
+                        <p>-</p>
+                    </li>
+                    <li>
+                        <div>Clouds</div>
+                        <p>-</p>
+                    </li>
+                    <li>
+                        <div>Temperature</div>
+                        <p>-</p>
+                    </li>
+                    <li>
+                        <div>Dewpoint</div>
+                        <p>-</p>
+                    </li>
+                    <li>
+                        <div>Altimeters</div>
+                        <p>-</p>
+                    </li>
+                    <li>
+                        <div>Codes</div>
+                        <p>-</p>
+                    </li>
+                    <li class="conditions-popup-li">
+                        <div>TAF</div>
+                        <p>No data</p>
+                    </li>
+                    <li>
+                        <p>Coming in a feature update</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </template>
+
+    <template id="template-flightplan-signature">
+        <div class="popup-wrapper">
+            <div class="popup-title">
+                <p>Sign Flight Plan</p>
+                <button>Close</button>
+            </div>
+            <div class="flightplan-signature-popup-container">
+                <div class="flightplan-signature-popup-container-section">
+                    <div>
+                        <h1>Captain:</h1>
+                        <input type="text">
+                    </div>
+                    <div>
+                        <h1>Personal ID:</h1>
+                        <input type="text">
+                    </div>
+                    <div>
+                        <h1>Password:</h1>
+                        <input type="text">
+                    </div>
+                </div>
+                <div class="flightplan-signature-popup-container-section">
+                    <div>
+                        <p>I am the pilot in command</p>
+                        <div class="toggle-button">
+                            <input type="checkbox" class="toggle-button-checkbox local-variable">
+                            <div class="toggle-button-knobs"></div>
+                            <div class="toggle-button-layer"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <p>I hereby confirm that I am fot to fly and I have read the ACN</p>
+                        <div class="toggle-button">
+                            <input type="checkbox" class="toggle-button-checkbox local-variable">
+                            <div class="toggle-button-knobs"></div>
+                            <div class="toggle-button-layer"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <p>I hereby confirm that I have read everything required to fly</p>
+                        <div class="toggle-button">
+                            <input type="checkbox" class="toggle-button-checkbox local-variable">
+                            <div class="toggle-button-knobs"></div>
+                            <div class="toggle-button-layer"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flightplan-signature-popup-container-section">
+                    <div>
+                        <h1>First Officer:</h1>
+                        <input type="text">
+                    </div>
+                    <div>
+                        <h1>Personal ID:</h1>
+                        <input type="text">
+                    </div>
+                </div>
+                <div class="flightplan-signature-popup-container-section">
+                    <div>
+                        <h1>Block Fuel:</h1>
+                        <input type="text">
+                    </div>
+                    <div>
+                        <h1>Extra Fuel:</h1>
+                        <input type="text">
+                    </div>
+                    <div>
+                        <h1>Reason:</h1>
+                        <input type="text">
+                    </div>
+                </div>
+                <div>
+                    <h1>Signature:</h1>
+                    <div id="notepad-sign">
+                        <div class="notepad-bar">
+                            <div class="notepad-bar-item" data-clear="true">X</div>
+                        </div>
+                        <div class="notepad-canvas" id="notepad-canvas-sign">
+                            <canvas>Your browser does not support canvas element.</canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="template-navigation-list-li">
+        <li>
+            <div class="navigation-list-li-main">
+                <p></p>
+                <h1 class="navigation-list-li-h1-time">EST TIME</h1>
+                <h1 class="navigation-list-li-h1-fuel">EST FUEL</h1>
+                <h1>MC/TC &deg;</h1>
+                <h1>SHEAR</h1>
+                <h1>COMP kt</h1>
+                <p></p>
+                <p></p>
+                <p class="navigation-list-li-time"></p>
+                <p class="navigation-list-li-fuel"></p>
+                <p></p>
+                <p></p>
+                <p></p>
+                <p></p>
+                <div class="navigation-list-li-toggle-dropdown">
+                    <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                        <title />
+                        <g data-name="Layer 2" id="Layer_2">
+                            <path
+                                d="M24,21a1,1,0,0,1-.71-.29L16,13.41l-7.29,7.3a1,1,0,1,1-1.42-1.42l8-8a1,1,0,0,1,1.42,0l8,8a1,1,0,0,1,0,1.42A1,1,0,0,1,24,21Z" />
+                        </g>
+                    </svg>
+                </div>
+            </div>
+            <div class="navigation-list-li-dropdown">
+                <h1></h1>
+                <h1>TIME</h1>
+                <h1>FUEL</h1>
+                <h1></h1>
+                <h1>MACH</h1>
+                <h1>ALT</h1>
+                <h1></h1>
+                <h1></h1>
+                <h1>Estimated</h1>
+                <p class="navigation-list-li-time"></p>
+                <p class="navigation-list-li-fuel"></p>
+                <h1></h1>
+                <p></p>
+                <p></p>
+                <h1></h1>
+                <h1></h1>
+                <h1>Actual</h1>
+                <input type="time">
+                <input type="number">
+                <h1></h1>
+                <input type="number">
+                <input type="number">
+                <h1></h1>
+                <h1></h1>
+            </div>
+        </li>
+    </template>
+
+    <script src="../static/js/custom/flask.js"></script>
+    <script src="../static/js/custom/notepad.js"></script>
+    <script src="../static/js/custom/ui.js"></script>
+    <script src="../static/js/custom/simbrief_loader.js"></script>
+    <script src="../static/js/custom/simbrief.js"></script>
+    <script src="../static/js/custom/map.js"></script>
+    <script src="../static/js/custom/dashboard.js"></script>
+    <script src="../static/js/custom/briefing.js"></script>
+    <script src="../static/js/custom/navigation.js"></script>
+    <script src="../static/js/custom/documents.js"></script>
+</body>
+
+</html>

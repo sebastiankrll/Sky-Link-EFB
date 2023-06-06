@@ -1,0 +1,167 @@
+#login-page {
+    z-index: 1002;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgb(2, 53, 172) 0%, rgb(1, 25, 83) 100%);
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+    transition: .5s;
+}
+
+#login-page>img {
+    height: 12rem;
+    display: none;
+}
+
+#login-footer {
+    display: none;
+    align-items: center;
+    font-size: .6rem;
+}
+
+#login-footer img {
+    height: 1.3rem;
+    margin: 0 .3rem;
+}
+
+#login-page form {
+    margin-top: 5rem;
+    margin-bottom: 2rem;
+    display: none;
+    gap: var(--standard-gap);
+    font-size: 1rem;
+    text-align: center;
+}
+
+#login-page input,
+button {
+    height: 3rem;
+    border-radius: 2px;
+    border: none;
+    font-size: 1rem;
+}
+
+#login-page input {
+    color: black;
+    padding: 0 .5rem;
+    animation: shake 0.82s cubic-bezier(.36, .07, .19, .97) both;
+    transform: translate3d(0, 0, 0);
+    perspective: 1000px;
+    animation-play-state: paused;
+    animation-iteration-count: 1;
+}
+
+@keyframes shake {
+
+    10%,
+    90% {
+        transform: translate3d(-1px, 0, 0);
+    }
+
+    20%,
+    80% {
+        transform: translate3d(2px, 0, 0);
+    }
+
+    30%,
+    50%,
+    70% {
+        transform: translate3d(-4px, 0, 0);
+    }
+
+    40%,
+    60% {
+        transform: translate3d(4px, 0, 0);
+    }
+}
+
+#login-page button {
+    background: var(--highlight-blue);
+    padding: 0 1rem;
+    position: relative;
+}
+
+#login-page #btn-load-simbrief {
+    background: var(--main-red);
+}
+
+#login-page #btn-load-simbrief>p {
+    font-size: 1rem;
+    display: inline-block;
+}
+
+#login-page #btn-load-simbrief>p>span {
+    font-weight: 600;
+    margin-right: 1rem;
+}
+
+.lds-ellipsis {
+    display: none;
+    position: relative;
+    width: 80px;
+    height: 100%;
+}
+
+.lds-ellipsis div {
+    position: absolute;
+    top: 50%;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #fff;
+    animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+
+.lds-ellipsis div:nth-child(1) {
+    left: 8px;
+    animation: lds-ellipsis1 0.6s infinite;
+}
+
+.lds-ellipsis div:nth-child(2) {
+    left: 8px;
+    animation: lds-ellipsis2 0.6s infinite;
+}
+
+.lds-ellipsis div:nth-child(3) {
+    left: 32px;
+    animation: lds-ellipsis2 0.6s infinite;
+}
+
+.lds-ellipsis div:nth-child(4) {
+    left: 56px;
+    animation: lds-ellipsis3 0.6s infinite;
+}
+
+@keyframes lds-ellipsis1 {
+    0% {
+        transform: translateY(-50%) scale(0);
+    }
+
+    100% {
+        transform: translateY(-50%) scale(1);
+    }
+}
+
+@keyframes lds-ellipsis3 {
+    0% {
+        transform: translateY(-50%) scale(1);
+    }
+
+    100% {
+        transform: translateY(-50%) scale(0);
+    }
+}
+
+@keyframes lds-ellipsis2 {
+    0% {
+        transform: translateY(-50%) translate(0, 0);
+    }
+
+    100% {
+        transform: translateY(-50%) translate(24px, 0);
+    }
+}

@@ -1,0 +1,51 @@
+#notepad {
+    display: flex;
+    gap: 1rem;
+    position: relative;
+    background: url('../img/hero/main.png') no-repeat;
+    background-size: 60%;
+    background-position: center;
+}
+
+.notepad-canvas {
+    background: rgba(25, 37, 47, .8);
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+    box-shadow: 3px 3px 10px 1px rgba(0, 0, 0, 0.6);
+    border-radius: var(--standard-border-radius);
+    width: 100%;
+    position: relative;
+}
+
+.notepad-canvas canvas {
+    height: 100%;
+    width: 100%;
+}
+
+.notepad-bar {
+    display: flex;
+    flex-flow: column;
+    gap: .5rem;
+}
+
+.notepad-bar-item {
+    width: 2rem;
+    height: 2rem;
+    background: rgba(25, 37, 47, .8);
+    border-radius: var(--standard-border-radius);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 1px 1px 5px 1px rgba(0, 0, 0, 0.6);
+}
+
+.notepad-bar-item span {
+    width: 1rem;
+    height: 1rem;
+    background: repeating-linear-gradient(45deg,
+            white,
+            white 2px,
+            grey 2px,
+            grey 4px);
+    border-radius: 50%;
+}

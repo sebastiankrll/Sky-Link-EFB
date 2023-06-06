@@ -132,6 +132,7 @@ class SimConnect:
 		self.dll = SimConnectDll(library_path)
 		self.hSimConnect = HANDLE()
 		self.quit = 0
+		self.status = False
 		self.ok = False
 		self.running = False
 		self.paused = False
@@ -171,9 +172,11 @@ class SimConnect:
 				self.timerThread.start()
 				while self.ok is False:
 					pass
+				self.status = True
 		except OSError:
 			LOGGER.debug("Did not find Flight Simulator running.")
-			raise ConnectionError("Did not find Flight Simulator running.")
+			self.status = False
+			#raise ConnectionError("Did not find Flight Simulator running.")
 
 	def _run(self):
 		while self.quit == 0:

@@ -1,0 +1,266 @@
+:root {
+    --background-blue: rgb(9, 11, 15);
+    --main-blue: rgb(18, 24, 31);
+    --header-blue: black;
+    --highlight-blue: #2da8e6;
+    --main-grey: rgb(127, 127, 129);
+    --main-green: rgb(130, 202, 69);
+    --main-red: rgb(167, 25, 37);
+    --hover-blue: rgb(25, 37, 47);
+    --main-yellow: rgb(238, 152, 54);
+    --standard-gap: 1rem;
+    --standard-border-radius: 3px;
+}
+
+html * {
+    color: white;
+    margin: 0;
+    padding: 0;
+    font-family: 'Montserrat', sans-serif;
+    overscroll-behavior: auto;
+}
+
+body {
+    background: var(--background-blue);
+    display: flex;
+    flex-flow: column;
+    height: 100vh;
+    width: 100vw;
+}
+
+header {
+    background: var(--header-blue);
+    display: flex;
+    height: 3rem;
+    box-sizing: border-box;
+    padding: 0 1rem;
+}
+
+.header-box {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+header span {
+    display: flex;
+}
+
+.header-box:first-child>span {
+    margin-right: auto;
+}
+
+.header-box:last-child>span {
+    margin-left: auto;
+}
+
+header span>div {
+    margin: 0 1.5rem;
+}
+
+.header-item {
+    display: flex;
+    align-items: center;
+}
+
+#header-logo img {
+    height: 1.5rem;
+}
+
+.header-item>p {
+    display: flex;
+    gap: .5rem;
+}
+
+.callsign {
+    font-weight: 700;
+    margin-right: 1rem;
+}
+
+#time {
+    font-size: .7rem;
+}
+
+#toggle-settings,
+#toggle-notepad {
+    height: 1.5rem;
+    fill: white;
+}
+
+#sim-connection {
+    background: var(--main-red);
+    height: 10px;
+    width: 10px;
+    border-radius: 50%;
+    margin: auto 0;
+}
+
+@keyframes sim_beacon {
+
+    0%,
+    80%,
+    90% {
+        background: none;
+    }
+
+    85%,
+    95% {
+        background: var(--main-red);
+    }
+}
+
+main {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    scroll-behavior: smooth;
+    position: relative;
+}
+
+section {
+    padding: 1rem;
+    box-sizing: border-box;
+    min-width: 100%;
+}
+
+nav {
+    background: var(--header-blue);
+    display: flex;
+    justify-content: space-around;
+    min-height: 4rem;
+}
+
+nav a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+}
+
+nav a>p {
+    color: var(--main-grey);
+}
+
+nav a.active>p {
+    color: var(--highlight-blue);
+}
+
+nav a>svg {
+    height: 1.2rem;
+    margin-right: .5rem;
+    fill: var(--main-grey);
+}
+
+nav a.active>svg {
+    fill: var(--highlight-blue);
+}
+
+.scroll-shadow {
+    position: absolute;
+    box-shadow: inset 0px -40px 20px -20px rgba(0, 0, 0, 0.5);
+    height: 100%;
+    width: 100%;
+    bottom: 0;
+}
+
+.toggle-button {
+    position: relative;
+    width: 74px;
+    min-width: 74px;
+    height: 36px;
+    overflow: hidden;
+    background: var(--hover-blue);
+    border-radius: 2px;
+    box-shadow: inset 0px 0px 2px 2px rgba(0, 0, 0, 0.5);
+    margin-left: auto;
+}
+
+.toggle-button-checkbox {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 3;
+}
+
+.toggle-button-knobs {
+    z-index: 2;
+}
+
+.toggle-button-layer {
+    width: 100%;
+    background-color: #ebf7fc;
+    transition: 0.3s ease all;
+    z-index: 1;
+}
+
+.toggle-button-knobs:before {
+    content: 'NO';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 20px;
+    height: 10px;
+    color: #fff;
+    font-size: 10px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1;
+    padding: 9px 4px;
+    background-color: var(--main-red);
+    border-radius: 2px;
+    transition: 0.3s ease all, left 0.3s cubic-bezier(0.18, 0.89, 0.35, 1.15);
+}
+
+.toggle-button-checkbox:active+.toggle-button-knobs:before {
+    width: 46px;
+}
+
+.toggle-button-checkbox:checked:active+.toggle-button-knobs:before {
+    margin-left: -26px;
+}
+
+.toggle-button-checkbox:checked+.toggle-button-knobs:before {
+    content: 'YES';
+    left: 42px;
+    background-color: var(--main-green);
+}
+
+.toggle-button-checkbox:checked~.toggle-button-layer {
+    background-color: #fcebeb;
+}
+
+.preloader {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    justify-content: center;
+    align-items: center;
+}
+
+.preloader:after {
+    content: "";
+    display: block;
+    width: 10rem;
+    height: 10rem;
+    margin: 8px;
+    border-radius: 50%;
+    border: 1rem solid #fff;
+    border-color: #fff transparent #fff transparent;
+    animation: lds-dual-ring 1.2s linear infinite;
+}
+
+@keyframes lds-dual-ring {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
