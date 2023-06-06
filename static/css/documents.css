@@ -47,25 +47,40 @@
     display: flex;
     align-items: center;
     padding: 1rem .5rem;
+    box-sizing: border-box;
     gap: 1rem;
+    height: 4rem;
 }
 
 #pdf-viewer {
+    position: relative;
     display: flex;
     flex-flow: column;
-    background: rgb(33, 36, 42);
     flex: 1;
     overflow: hidden;
+    height: 100%;
+}
+
+#pdf-viewer::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+    height: 100%;
+    width: 100%;
 }
 
 .pdf-viewer-controls {
     display: flex;
-    gap: 1rem;
-    background: rgb(52, 58, 64);
+    gap: 1.5rem;
+    background: var(--main-blue);
     justify-content: center;
     align-items: center;
     padding: .5rem 1rem;
     border-bottom: solid 1px rgb(112, 124, 135);
+    z-index: 2;
 }
 
 .pdf-viewer-controls svg {
@@ -73,18 +88,23 @@
     justify-content: center;
     align-items: center;
     fill: white;
-    height: 1rem;
+    height: 1.2rem;
 }
 
 #pdf-viewer-container {
+    position: relative;
     overflow: scroll;
     text-align: center;
     display: flex;
     flex-flow: column;
     gap: 1rem;
+    background: url('../img/hero/main.png') no-repeat;
+    background-size: 90%;
+    background-position: center;
 }
 
 #pdf-viewer-container>div {
     width: 100%;
     height: fit-content;
+    z-index: 2;
 }
