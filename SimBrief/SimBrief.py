@@ -36,8 +36,8 @@ class SimBrief:
 		
 		new_attr = attr.replace('__', '/')
 		childs = self.data.findall('./' + new_attr)
+		str_array = []
 		if len(childs) > 1:
-			str_array = []
 			for child in childs:
 				str_array.append(child.text)
 		else:
@@ -102,12 +102,12 @@ class SimBrief:
 		json_dict["TIME_ON_EST"] = t.strftime("%H:%M") + ' <div class="unit">UTC</div>'
 		t = datetime.datetime.utcfromtimestamp(int(self.getXMLData('times__est_in')))
 		json_dict["TIME_IN_EST"] = t.strftime("%H:%M") + ' <div class="unit">UTC</div>'
-		json_dict["TIME_IMPACTS_WEIGHT_UP"] = int(int(self.getXMLData('impacts__zfw_plus_1000__time_difference')) / 60)
-		json_dict["TIME_IMPACTS_WEIGHT_DN"] = int(int(self.getXMLData('impacts__zfw_minus_1000__time_difference')) / 60)
-		json_dict["TIME_IMPACTS_FL_UP"] = int(int(self.getXMLData('impacts__plus_2000ft__time_difference')) / 60)
-		json_dict["TIME_IMPACTS_FL_DN"] = int(int(self.getXMLData('impacts__minus_2000ft__time_difference')) / 60)
-		json_dict["TIME_IMPACTS_CI_DN"] = int(int(self.getXMLData('impacts__lower_ci__time_difference')) / 60)
-		json_dict["TIME_IMPACTS_CI_UP"] = int(int(self.getXMLData('impacts__higher_ci__time_difference')) / 60)
+		json_dict["TIME_IMPACTS_WEIGHT_UP"] = int(int(self.getXMLData('impacts__zfw_plus_1000__time_difference')) / 60) if self.getXMLData('impacts__zfw_plus_1000__time_difference') else []
+		json_dict["TIME_IMPACTS_WEIGHT_DN"] = int(int(self.getXMLData('impacts__zfw_minus_1000__time_difference')) / 60) if self.getXMLData('impacts__zfw_minus_1000__time_difference') else []
+		json_dict["TIME_IMPACTS_FL_UP"] = int(int(self.getXMLData('impacts__plus_2000ft__time_difference')) / 60) if self.getXMLData('impacts__plus_2000ft__time_difference') else []
+		json_dict["TIME_IMPACTS_FL_DN"] = int(int(self.getXMLData('impacts__minus_2000ft__time_difference')) / 60) if self.getXMLData('impacts__minus_2000ft__time_difference') else []
+		json_dict["TIME_IMPACTS_CI_DN"] = int(int(self.getXMLData('impacts__lower_ci__time_difference')) / 60) if self.getXMLData('impacts__lower_ci__time_difference') else []
+		json_dict["TIME_IMPACTS_CI_UP"] = int(int(self.getXMLData('impacts__higher_ci__time_difference')) / 60) if self.getXMLData('impacts__higher_ci__time_difference') else []
 
 		# WEIGHT-SUMMARY
 		json_dict["WEIGHT_MAX_TOW"] = self.getXMLData('weights__max_tow') + ' <div class="unit">kg</div>'
@@ -131,12 +131,12 @@ class SimBrief:
 		json_dict["WEIGHT_BAG_W"] = self.getXMLData('weights__bag_weight') + ' <div class="unit">kg/bag</div>'
 		json_dict["WEIGHT_CARGO"] = self.getXMLData('weights__cargo') + ' <div class="unit">kg</div>'
 		json_dict["WEIGHT_PAYLOAD"] = self.getXMLData('weights__payload') + ' <div class="unit">kg</div>'
-		json_dict["WEIGHT_IMPACTS_WEIGHT_UP"] = int(int(self.getXMLData('impacts__zfw_plus_1000__burn_difference')) / 60)
-		json_dict["WEIGHT_IMPACTS_WEIGHT_DN"] = int(int(self.getXMLData('impacts__zfw_minus_1000__burn_difference')) / 60)
-		json_dict["WEIGHT_IMPACTS_FL_UP"] = int(int(self.getXMLData('impacts__plus_2000ft__burn_difference')) / 60)
-		json_dict["WEIGHT_IMPACTS_FL_DN"] = int(int(self.getXMLData('impacts__minus_2000ft__burn_difference')) / 60)
-		json_dict["WEIGHT_IMPACTS_CI_DN"] = int(int(self.getXMLData('impacts__lower_ci__burn_difference')) / 60)
-		json_dict["WEIGHT_IMPACTS_CI_UP"] = int(int(self.getXMLData('impacts__higher_ci__burn_difference')) / 60)
+		json_dict["WEIGHT_IMPACTS_WEIGHT_UP"] = self.getXMLData('impacts__zfw_plus_1000__burn_difference')
+		json_dict["WEIGHT_IMPACTS_WEIGHT_DN"] = self.getXMLData('impacts__zfw_minus_1000__burn_difference')
+		json_dict["WEIGHT_IMPACTS_FL_UP"] = self.getXMLData('impacts__plus_2000ft__burn_difference')
+		json_dict["WEIGHT_IMPACTS_FL_DN"] = self.getXMLData('impacts__minus_2000ft__burn_difference')
+		json_dict["WEIGHT_IMPACTS_CI_DN"] = self.getXMLData('impacts__lower_ci__burn_difference')
+		json_dict["WEIGHT_IMPACTS_CI_UP"] = self.getXMLData('impacts__higher_ci__burn_difference')
 
 		# ALTN-SUMMARY
 		json_dict["ALTN_FL"] = "FL" + self.getXMLData('alternate__cruise_altitude')[0:3] if len(self.getXMLData('alternate__cruise_altitude')) > 4 else "FL0" + self.getXMLData('alternate__cruise_altitude')[0:1]

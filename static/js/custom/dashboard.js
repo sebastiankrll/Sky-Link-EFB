@@ -116,7 +116,7 @@ function viewConditions() {
 
 function fetchWeatherReport(url, icao, callback) {
 
-    var request = new XMLHttpRequest();
+    let request = new XMLHttpRequest();
     request.open('GET', url + icao);
     request.setRequestHeader('Content-Type', 'text/plain');
     request.setRequestHeader('Authorization', 'Y8A3CYfgHXndwbwi4H7aHXFFbslU0P-18KC3Y3CoAp0');

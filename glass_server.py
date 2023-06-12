@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, render_template, request, redirect, url_for
 from SimBrief.SimBrief import SimBrief
 from SimConnect import *
-from xml.etree import ElementTree
+import os
 
 
 app = Flask(__name__)
@@ -91,6 +91,19 @@ def output_simbrief_status():
 	json_dict = {}
 	json_dict["STATUS"] = sb.status
 	json_dict["USER_ID"] = sb.user
+
+	return jsonify(json_dict)
+
+# Send documents list to JS
+@app.route('/documents/list/', methods=["GET"])
+def output_documents_list():
+	json_dict = {}
+	
+	path = './static/media/documents/'
+	json_dict["AIRCRAFT"] = os.listdir(path + 'aircraft')
+	json_dict["CHECKLIST"] = os.listdir(path + 'checklist')
+	json_dict["DISPATCH"] = os.listdir(path + 'dispatch')
+	json_dict["OTHERS"] = os.listdir(path + 'others')
 
 	return jsonify(json_dict)
 
