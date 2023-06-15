@@ -1,10 +1,11 @@
-document.querySelectorAll('#documents-opened>div').forEach((documents_item) => {
-    documents_item.addEventListener('click', () => {
-        document.querySelectorAll('#documents-opened>div').forEach((documents_item) => {
-            documents_item.classList.remove('active');
-        })
-        documents_item.classList.add('active');
+
+document.getElementById('documents-opened-folders').addEventListener('click', () => {
+    document.querySelectorAll('.documents-opened-item').forEach((documents_item) => {
+        documents_item.classList.remove('active');
     })
+    document.getElementById('documents-opened-folders').classList.add('active');
+    document.getElementById('document-viewer-explorer').style.display = ''
+    document.getElementById('document-viewer-wrapper').style.display = ''
 })
 
 document.querySelectorAll('.document-viewer-item').forEach((documents_item) => {
@@ -13,6 +14,7 @@ document.querySelectorAll('.document-viewer-item').forEach((documents_item) => {
             documents_item.classList.remove('active');
         })
         documents_item.classList.add('active');
+
         const ul = document.getElementById('document-viewer-list').querySelector('ul');
         ul.innerHTML = "";
         let folder_name = documents_item.querySelector('p').innerText;
@@ -22,11 +24,9 @@ document.querySelectorAll('.document-viewer-item').forEach((documents_item) => {
                 let temp = document.getElementById('document-viewer-list-item');
                 let tr = document.importNode(temp.content, true);
                 tr.querySelector('p').innerHTML = sResp[i]
+
                 tr.querySelector('li').addEventListener('click', () => {
-                    addDocumentsTab(folder_name.toLowerCase(), sResp[i])
-                    showPDF(folder_name.toLowerCase() + '/' + sResp[i])
-                    document.getElementById('document-viewer-explorer').style.display = 'none'
-                    document.getElementById('document-viewer-wrapper').style.display = 'flex'
+                    addDocument(folder_name.toLowerCase(), sResp[i])
                 })
                 ul.appendChild(tr);
             }
@@ -34,9 +34,29 @@ document.querySelectorAll('.document-viewer-item').forEach((documents_item) => {
     })
 })
 
-function addDocumentsTab(dir, file) {
+function redirectToDocument(file) {
+    const wrapper = document.getElementById('document-viewer-wrapper')
+    document.getElementById('document-viewer-explorer').style.display = 'none'
+    wrapper.style.display = 'flex'
+    wrapper.querySelectorAll('.pdf-viewer').forEach((pdf_viewer) => {
+        if (pdf_viewer.dataset.file == file) {
+            pdf_viewer.style.display = 'flex'
+        } else {
+            pdf_viewer.style.display = 'none'
+        }
+    })
+    document.querySelectorAll('.documents-opened-item').forEach((documents_item) => {
+        if (documents_item.dataset.file == file) {
+            documents_item.classList.add('active');
+        } else {
+            documents_item.classList.remove('active');
+        }
+    })
+}
+
+function addDocument(dir, file) {
     let exists = false
-    const opened = document.getElementById('documents-opened')
+    const opened = document.getElementById('documents-opened-scroller')
     opened.querySelectorAll('p').forEach((opened_file) => {
         if (opened_file.innerHTML == file) {
             exists = true
@@ -44,7 +64,10 @@ function addDocumentsTab(dir, file) {
         }
     })
     if (exists) {
+        redirectToDocument(dir + '/' + file)
         return
+    } else {
+        showPDF(dir + '/' + file)
     }
 
     let temp = document.getElementById('documents-opened-item');
@@ -52,38 +75,51 @@ function addDocumentsTab(dir, file) {
     tr.querySelector('p').innerHTML = file
     const div = tr.querySelector('div')
 
-    document.querySelectorAll('#documents-opened>div').forEach((documents_item) => {
+    document.querySelectorAll('.documents-opened-item').forEach((documents_item) => {
         documents_item.classList.remove('active');
     })
     div.classList.add('active');
 
     div.addEventListener('click', () => {
-        document.querySelectorAll('#documents-opened>div').forEach((documents_item) => {
-            documents_item.classList.remove('active');
-        })
-        div.classList.add('active');
+        redirectToDocument(dir + '/' + file)
     })
+
     const span = tr.querySelector('span')
     span.addEventListener('click', (e) => {
         e.stopPropagation()
         div.remove()
         if (div.classList.contains('active')) {
-            document.querySelectorAll('#documents-opened>div')[0].classList.add('active')
+            document.getElementById('documents-opened-folders').classList.add('active')
         }
+        document.getElementById('document-viewer-explorer').style.display = ''
+        const wrapper = document.getElementById('document-viewer-wrapper')
+        wrapper.style.display = ''
+        wrapper.querySelectorAll('.pdf-viewer').forEach((pdf_viewer) => {
+            if (pdf_viewer.dataset.file == div.dataset.file) {
+                pdf_viewer.remove()
+            }
+        })
     })
     div.dataset.file = dir + '/' + file
     opened.appendChild(tr);
-}
-
-let pdf_state = {
-    pdf: null,
-    currentPage: 1,
-    zoom: 1
+    redirectToDocument(dir + '/' + file)
 }
 
 function showPDF(url) {
 
-    let loadingTask = pdfjsLib.getDocument('./static/media/documents/' + url);
+    let pdf_state = {
+        pdf: null,
+        zoom: 1,
+        currentPage: 1,
+        init: true
+    }
+
+    let xDown = null;
+    let yDown = null;
+
+    let loadingTask = pdfjsLib.getDocument({
+        url: './static/media/documents/' + url
+    });
     loadingTask.promise.then((pdf) => {
 
         pdf_state.pdf = pdf;
@@ -91,7 +127,11 @@ function showPDF(url) {
         let container = document.getElementById("document-viewer-wrapper");
         let temp = document.getElementById('pdf-viewer');
         let tr = document.importNode(temp.content, true);
+        tr.querySelector('.pdf-viewer').dataset.file = url;
         const pdf_viewer = tr.querySelector('.pdf-viewer-container')
+        const pageInput = tr.querySelector('.pdf-page-current input')
+        pageInput.value = 1
+        tr.querySelector('.pdf-page-current p').innerHTML = '/ ' + pdf.numPages
 
         tr.querySelector('.pdf-zoom-in').addEventListener('click', () => {
             if (pdf_state.pdf == null) {
@@ -101,7 +141,8 @@ function showPDF(url) {
                 pdf_state.zoom *= 1.5;
                 pdf_viewer.scrollTop = pdf_viewer.scrollTop * 1.5;
                 pdf_viewer.scrollLeft = pdf_viewer.scrollLeft * 1.5;
-                render(pdf_viewer);
+                pdf_viewer.innerHTML = ""
+                render(pdf_viewer, pdf_state);
             }
         })
 
@@ -113,7 +154,8 @@ function showPDF(url) {
                 pdf_state.zoom /= 1.5;
                 pdf_viewer.scrollTop = pdf_viewer.scrollTop / 1.5;
                 pdf_viewer.scrollLeft = pdf_viewer.scrollLeft / 1.5;
-                render(pdf_viewer);
+                pdf_viewer.innerHTML = ""
+                render(pdf_viewer, pdf_state);
             }
         })
 
@@ -127,7 +169,8 @@ function showPDF(url) {
             pdf_viewer.scrollTop = pdf_viewer.scrollTop * pdf_viewer.offsetWidth / canvas.offsetWidth;
             pdf_viewer.scrollLeft = pdf_viewer.scrollLeft * pdf_viewer.offsetWidth / canvas.offsetWidth;
 
-            render(pdf_viewer);
+            pdf_viewer.innerHTML = ""
+            render(pdf_viewer, pdf_state);
         })
 
         tr.querySelector('.pdf-fit-width').addEventListener('click', () => {
@@ -139,59 +182,147 @@ function showPDF(url) {
             pdf_viewer.scrollTop = pdf_viewer.scrollTop * pdf_viewer.offsetWidth / canvas.offsetWidth;
             pdf_viewer.scrollLeft = pdf_viewer.scrollLeft * pdf_viewer.offsetWidth / canvas.offsetWidth;
 
-            render(pdf_viewer);
+            pdf_viewer.innerHTML = ""
+            render(pdf_viewer, pdf_state);
         })
 
-        container.appendChild(tr);
+        pageInput.addEventListener('change', (e) => {
+            if (pdf_state.pdf == null || e.target.valueAsNumber < 1 || e.target.valueAsNumber > pdf_state.pdf.numPages) {
+                pageInput.value = pdf_state.currentPage
+                return;
+            }
+            pdf_state.currentPage = e.target.valueAsNumber
 
-        render(pdf_viewer);
+            pdf_viewer.innerHTML = ""
+            render(pdf_viewer, pdf_state);
+        })
+
+        function swipePage(direction) {
+            if (direction) {
+                if (pdf_state.pdf == null || pdf_state.currentPage == 1) {
+                    return;
+                }
+                pdf_state.currentPage -= 1
+                pageInput.value = pdf_state.currentPage
+            } else {
+                if (pdf_state.pdf == null || pdf_state.currentPage == pdf_state.pdf.numPages) {
+                    return;
+                }
+                pdf_state.currentPage += 1
+                pageInput.value = pdf_state.currentPage
+            }
+            pdf_viewer.innerHTML = ""
+            render(pdf_viewer, pdf_state);
+        }
+
+        tr.querySelector('.pdf-page-prev').addEventListener('click', () => {
+            swipePage(true)
+        })
+
+        tr.querySelector('.pdf-page-next').addEventListener('click', () => {
+            swipePage(false)
+        })
+
+        tr.querySelector('.pdf-viewer').addEventListener('touchstart', handlePDFTouchStart, false);
+        tr.querySelector('.pdf-viewer').addEventListener('touchmove', handlePDFTouchMove, false);
+
+        function getTouches(evt) {
+            return evt.touches || evt.originalEvent.touches;
+        }
+
+        function handlePDFTouchStart(evt) {
+            const firstTouch = getTouches(evt)[0];
+            xDown = firstTouch.clientX;
+            yDown = firstTouch.clientY;
+        };
+
+        function handlePDFTouchMove(evt) {
+            let canvas = pdf_viewer.querySelector('canvas');
+            if (pdf_viewer.offsetHeight / canvas.offsetHeight < 1) {
+                xDown = null;
+                yDown = null;
+                return
+            }
+
+            evt.preventDefault();
+            if (!xDown || !yDown) {
+                return;
+            }
+
+            let xUp = evt.touches[0].clientX;
+            let yUp = evt.touches[0].clientY;
+
+            let xDiff = xDown - xUp;
+            let yDiff = yDown - yUp;
+
+            if (Math.abs(xDiff) > Math.abs(yDiff)) {
+                if (xDiff > 0) {
+                    swipePage(false)
+                } else {
+                    swipePage(true)
+                }
+            } else {
+                if (yDiff > 0) {
+                    swipePage(false)
+                } else {
+                    swipePage(true)
+                }
+            }
+            xDown = null;
+            yDown = null;
+        };
+
+        container.appendChild(tr);
+        render(pdf_viewer, pdf_state);
 
     });
 }
 
-function render(container) {
+function render(container, pdf_state) {
 
-    container.innerHTML = ""
-    for (let i = 1; i <= pdf_state.pdf.numPages; i++) {
+    pdf_state.pdf.getPage(pdf_state.currentPage).then((page) => {
 
-        pdf_state.pdf.getPage(i).then((page) => {
+        let viewport = page.getViewport({ scale: pdf_state.zoom });
+        let div = document.createElement("div");
 
-            let viewport = page.getViewport({ scale: pdf_state.zoom });
-            let div = document.createElement("div");
+        if (pdf_state.init) {
+            pdf_state.init = false
+            pdf_state.zoom *= container.offsetHeight / viewport.height
+            viewport = page.getViewport({ scale: pdf_state.zoom })
+        }
 
-            div.setAttribute("id", "page-" + (page._pageIndex + 1));
-            container.appendChild(div);
+        div.setAttribute("id", "page-" + (page._pageIndex + 1));
+        container.appendChild(div);
 
-            let canvas = document.createElement("canvas");
-            div.appendChild(canvas);
+        let canvas = document.createElement("canvas");
+        div.appendChild(canvas);
 
-            let context = canvas.getContext('2d');
-            context.imageSmoothingEnabled = false;
-            context.webkitImageSmoothingEnabled = false;
-            context.mozImageSmoothingEnabled = false;
-            context.oImageSmoothingEnabled = false;
+        let context = canvas.getContext('2d');
+        context.imageSmoothingEnabled = false;
+        context.webkitImageSmoothingEnabled = false;
+        context.mozImageSmoothingEnabled = false;
+        context.oImageSmoothingEnabled = false;
 
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
 
-            if (window.devicePixelRatio > 1) {
-                let canvasWidth = canvas.width;
-                let canvasHeight = canvas.height;
+        if (window.devicePixelRatio > 1) {
+            let canvasWidth = canvas.width;
+            let canvasHeight = canvas.height;
 
-                canvas.width = canvasWidth * window.devicePixelRatio;
-                canvas.height = canvasHeight * window.devicePixelRatio;
-                canvas.style.width = canvasWidth + "px";
-                canvas.style.height = canvasHeight + "px";
+            canvas.width = canvasWidth * window.devicePixelRatio;
+            canvas.height = canvasHeight * window.devicePixelRatio;
+            canvas.style.width = canvasWidth + "px";
+            canvas.style.height = canvasHeight + "px";
 
-                context.scale(window.devicePixelRatio, window.devicePixelRatio);
-            }
+            context.scale(window.devicePixelRatio, window.devicePixelRatio);
+        }
 
-            let renderContext = {
-                canvasContext: context,
-                viewport: viewport
-            };
+        let renderContext = {
+            canvasContext: context,
+            viewport: viewport
+        };
 
-            page.render(renderContext);
-        });
-    }
+        page.render(renderContext);
+    });
 }

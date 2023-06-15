@@ -14,7 +14,17 @@
     padding-top: 1rem;
 }
 
-#documents-opened>div {
+#documents-opened-scroller {
+    display: flex;
+    overflow-x: scroll;
+    gap: 1rem;
+}
+
+#documents-opened-scroller::-webkit-scrollbar {
+    display: none;
+}
+
+.documents-opened-item {
     background: rgb(14, 18, 24);
     height: 100%;
     padding: .5rem 1rem;
@@ -23,14 +33,21 @@
     align-items: center;
     gap: 1rem;
     box-shadow: inset 0px -10px 20px -15px #000000;
+    max-width: 20rem;
 }
 
-#documents-opened>div.active {
+.documents-opened-item p {
+    overflow: hidden;
+    white-space: nowrap;
+    width: 100%;
+}
+
+.documents-opened-item.active {
     background: var(--main-blue);
     box-shadow: none;
 }
 
-#documents-opened>div>span {
+.documents-opened-item>span {
     fill: var(--main-grey);
     width: 1rem;
 }
@@ -144,7 +161,23 @@
     justify-content: center;
     align-items: center;
     fill: white;
-    height: 1.2rem;
+    height: 1.4rem;
+}
+
+.pdf-page-current {
+    display: flex;
+    align-items: center;
+}
+
+.pdf-page-current input {
+    border: none;
+    background: var(--background-blue);
+    color: white;
+    width: 3ch;
+    margin-right: .2rem;
+    text-align: center;
+    height: 1.4rem;
+    border-radius: 3px;
 }
 
 .pdf-viewer-container {
@@ -157,6 +190,7 @@
     background: url('../img/hero/main_blurred.png') no-repeat;
     background-size: 90%;
     background-position: center;
+    height: 100%;
 }
 
 .pdf-viewer-container>div {
