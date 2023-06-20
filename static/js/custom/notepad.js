@@ -1,14 +1,12 @@
-let toggle_notepad = document.getElementById('toggle-notepad');
-toggle_notepad.parentNode.addEventListener('click', () => {
-    toggle_notepad.style.fill = 'var(--highlight-blue)';
+document.getElementById('toggle-notepad').parentNode.addEventListener('click', (e) => {
+    e.target.style.fill = 'var(--highlight-blue)';
     window.location.href = '#notepad';
-    navs.forEach((nav) => {
+    document.querySelectorAll('nav a').forEach((nav) => {
         nav.classList.remove('active');
     })
 })
 
-let note_bar_items = document.querySelectorAll('.notepad-bar-item');
-note_bar_items.forEach((note_bar_item) => {
+document.querySelectorAll('.notepad-bar-item').forEach((note_bar_item) => {
     note_bar_item.addEventListener('click', () => {
         if (note_bar_item.dataset.clear == 'true') {
             ctx.clearRect(0, 0, notepad_cv.width, notepad_cv.height);

@@ -21,40 +21,86 @@ document.querySelectorAll('.document-viewer-item').forEach((documents_item) => {
         getData('/documents/list/', '', (response) => {
             const sResp = response[folder_name.toUpperCase()]
             for (let i = 0; i < sResp.length; i++) {
-                let temp = document.getElementById('document-viewer-list-item');
-                let tr = document.importNode(temp.content, true);
-                tr.querySelector('p').innerHTML = sResp[i]
+                if (sResp[i].includes('.pdf')) {
+                    let temp = document.getElementById('document-viewer-list-item');
+                    let tr = document.importNode(temp.content, true);
+                    tr.querySelector('p').innerHTML = sResp[i]
 
-                tr.querySelector('li').addEventListener('click', () => {
-                    addDocument(folder_name.toLowerCase(), sResp[i])
-                })
-                ul.appendChild(tr);
+                    tr.querySelector('li').addEventListener('click', () => {
+                        addDocument(folder_name.toLowerCase(), sResp[i])
+                    })
+                    ul.appendChild(tr);
+                } else {
+                    let temp = document.getElementById('document-viewer-list-item-checklist');
+                    let tr = document.importNode(temp.content, true);
+                    tr.querySelector('p').innerHTML = sResp[i]
+
+                    tr.querySelector('li').addEventListener('click', () => {
+                        addChecklist(folder_name.toLowerCase(), sResp[i])
+                    })
+                    ul.appendChild(tr);
+
+                }
             }
         });
     })
 })
 
-function redirectToDocument(file) {
-    const wrapper = document.getElementById('document-viewer-wrapper')
-    document.getElementById('document-viewer-explorer').style.display = 'none'
-    wrapper.style.display = 'flex'
-    wrapper.querySelectorAll('.pdf-viewer').forEach((pdf_viewer) => {
-        if (pdf_viewer.dataset.file == file) {
-            pdf_viewer.style.display = 'flex'
-        } else {
-            pdf_viewer.style.display = 'none'
+function showChecklist(url) {
+    let temp = document.getElementById('checklist-viewer');
+    let tr = document.importNode(temp.content, true);
+    const container = document.getElementById("document-viewer-wrapper");
+    const check_index = tr.querySelector('.checklist-viewer-index ul')
+    const pdf_viewer = tr.querySelector('.pdf-viewer')
+    pdf_viewer.dataset.file = url;
+
+    let request = new XMLHttpRequest();
+    request.open('GET', '/static/media/documents/' + url);
+    request.setRequestHeader('Content-Type', 'text/xml');
+
+    request.onreadystatechange = function () {
+        if (this.readyState === 4) {
+            let parser = new DOMParser()
+            let xmlDoc = parser.parseFromString(this.responseText, "text/xml")
+            for (let i = 0; i < xmlDoc.getElementsByTagName('chapter').length; i++) {
+                let index_li = document.createElement('li')
+                index_li.innerHTML = xmlDoc.getElementsByTagName('chapter')[i].getElementsByTagName('title')[0].childNodes[0].nodeValue
+                check_index.appendChild(index_li)
+                let wrapper = document.createElement('div')
+                wrapper.classList.add('checklist-viewer-box')
+                let ul = document.createElement('ul')
+                for (let j = 0; j < xmlDoc.getElementsByTagName('chapter')[i].getElementsByTagName('checkpoint').length; j++) {
+                    let temp = document.getElementById('checklist-viewer-item');
+                    let tr = document.importNode(temp.content, true);
+                    ul.appendChild(tr)
+                }
+                wrapper.appendChild(ul)
+                wrapper.style.display = 'none'
+                pdf_viewer.appendChild(wrapper)
+            }
+            pdf_viewer.childNodes[1].style.display = ''
         }
-    })
-    document.querySelectorAll('.documents-opened-item').forEach((documents_item) => {
-        if (documents_item.dataset.file == file) {
-            documents_item.classList.add('active');
-        } else {
-            documents_item.classList.remove('active');
-        }
-    })
+    };
+
+    request.send();
+
+    container.appendChild(tr);
 }
 
-function addDocument(dir, file) {
+function addChecklist(dir, file) {
+    let exists = addDocumentTab(dir, file)
+    if (exists) {
+        redirectToDocument(dir + '/' + file)
+        return
+    } else {
+        showChecklist(dir + '/' + file)
+    }
+
+    redirectToDocument(dir + '/' + file)
+}
+
+function addDocumentTab(dir, file) {
+
     let exists = false
     const opened = document.getElementById('documents-opened-scroller')
     opened.querySelectorAll('p').forEach((opened_file) => {
@@ -63,11 +109,9 @@ function addDocument(dir, file) {
             return
         }
     })
+
     if (exists) {
-        redirectToDocument(dir + '/' + file)
-        return
-    } else {
-        showPDF(dir + '/' + file)
+        return true
     }
 
     let temp = document.getElementById('documents-opened-item');
@@ -102,6 +146,37 @@ function addDocument(dir, file) {
     })
     div.dataset.file = dir + '/' + file
     opened.appendChild(tr);
+}
+
+function redirectToDocument(file) {
+    const wrapper = document.getElementById('document-viewer-wrapper')
+    document.getElementById('document-viewer-explorer').style.display = 'none'
+    wrapper.style.display = 'flex'
+    wrapper.querySelectorAll('.pdf-viewer').forEach((pdf_viewer) => {
+        if (pdf_viewer.dataset.file == file) {
+            pdf_viewer.style.display = 'flex'
+        } else {
+            pdf_viewer.style.display = 'none'
+        }
+    })
+    document.querySelectorAll('.documents-opened-item').forEach((documents_item) => {
+        if (documents_item.dataset.file == file) {
+            documents_item.classList.add('active');
+        } else {
+            documents_item.classList.remove('active');
+        }
+    })
+}
+
+function addDocument(dir, file) {
+    let exists = addDocumentTab(dir, file)
+    if (exists) {
+        redirectToDocument(dir + '/' + file)
+        return
+    } else {
+        showPDF(dir + '/' + file)
+    }
+
     redirectToDocument(dir + '/' + file)
 }
 
@@ -325,4 +400,8 @@ function render(container, pdf_state) {
 
         page.render(renderContext);
     });
+}
+
+function renderChecklist() {
+
 }

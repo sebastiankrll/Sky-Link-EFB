@@ -1,0 +1,24 @@
+<checklist>
+    <chapter>
+        <title>PRE START CHECKLIST</title>
+        <checkpoint>PARKING BRAKE:SET</checkpoint>
+        <checkpoint>CHOCKS:REMOVED</checkpoint>
+        <checkpoint>GPU:CONNECTED</checkpoint>
+        <checkpoint>THROTTLE:THRUST LEVERS IDLE</checkpoint>
+        <checkpoint>ENGINE MASTERS:OFF</checkpoint>
+        <checkinfo>Check Weather (ATIS, Flight Services)</checkinfo>
+        <checkpoint>DE-ICE:TEST / CHECK</checkpoint>
+        <checkpoint>TRANSPONDER:SET, STANDBY</checkpoint>
+    </chapter>
+    <chapter>
+        <title>PRE START CHECKLIST</title>
+        <checkpoint>PARKING BRAKE:SET</checkpoint>
+        <checkpoint>CHOCKS:REMOVED</checkpoint>
+        <checkpoint>GPU:CONNECTED</checkpoint>
+        <checkpoint>THROTTLE:THRUST LEVERS IDLE</checkpoint>
+        <checkpoint>ENGINE MASTERS:OFF</checkpoint>
+        <checkinfo>Check Weather (ATIS, Flight Services)</checkinfo>
+        <checkpoint>DE-ICE:TEST / CHECK</checkpoint>
+        <checkpoint>TRANSPONDER:SET, STANDBY</checkpoint>
+    </chapter>
+</checklist>

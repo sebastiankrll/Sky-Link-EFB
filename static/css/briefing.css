@@ -7,8 +7,6 @@
 }
 
 .briefing-folder-sign-btn {
-    border: none;
-    background: none;
     margin-left: auto;
     margin-right: 1rem;
     height: fit-content;
@@ -28,10 +26,6 @@
     overflow-y: scroll;
     grid-column: 1 / 2;
     grid-row: 2 / 3;
-}
-
-.briefing-folder ul {
-    list-style-type: none;
 }
 
 .briefing-folder ul li {
@@ -87,10 +81,6 @@
 
 .briefing-item.active {
     display: block;
-}
-
-.briefing-item ul {
-    list-style-type: none;
 }
 
 .briefing-item ul hr {

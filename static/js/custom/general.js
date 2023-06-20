@@ -1,16 +1,46 @@
-let simconnect_status = 'Connecting';
-let simconnect_interval
 
-let sim_con_lamp = document.getElementById('sim-connection');
-sim_con_lamp.addEventListener('click', () => {
+// Flask POST and GET
+
+function flaskGet(url, datapoint, callback) {
+    let request = new XMLHttpRequest();
+    request.open('GET', url + datapoint, true);
+
+    request.onload = function () {
+        if (request.status >= 200 && request.status < 400) {
+            callback(JSON.parse(request.responseText));
+        } else {
+        }
+    };
+    request.onerror = function () {
+    };
+    request.send();
+}
+
+function flaskSet(dir, datapoint_name, valueToUse) {
+    let request = new XMLHttpRequest();
+    request.open('POST', '/' + dir + '/' + datapoint_name + '/set', true);
+    request.setRequestHeader('Content-Type', 'application/json');
+    request.send(JSON.stringify({
+        value_to_use: valueToUse
+    }));
+}
+
+// Communication to simulator through SimConnect API
+
+let sim_connect = {
+    status: false,
+    interval: null
+}
+
+document.getElementById('sim-connection').addEventListener('click', (e) => {
     let timesRun = 0;
-    if (simconnect_status == "Connecting") {
-        sim_con_lamp.style.animation = 'sim_beacon 1s ease 0s infinite normal forwards';
-        simconnect_interval = window.setInterval(() => {
+    if (!sim_connect.status) {
+        e.target.style.animation = 'sim_beacon 1s ease 0s infinite normal forwards';
+        sim_connect.interval = window.setInterval(() => {
             timesRun += 1;
             if (timesRun == 10) {
-                clearInterval(simconnect_interval);
-                sim_con_lamp.style.animation = '';
+                clearInterval(sim_connect.interval);
+                e.target.style.animation = '';
             } else {
                 fetchSimconnectStatus();
             }
@@ -19,17 +49,18 @@ sim_con_lamp.addEventListener('click', () => {
 })
 
 function fetchSimconnectStatus() {
-    getData('/simconnect/status/', '', (response) => {
+    flaskGet('/simconnect/status/', '', (response) => {
         if (response.STATUS == "Sim connected") {
-            simconnect_status = 'Success';
-            clearInterval(simconnect_interval);
+            sim_connect.status = true;
+            clearInterval(sim_connect.interval);
+            const sim_con_lamp = document.getElementById('sim-connection')
             sim_con_lamp.style.animation = '';
             sim_con_lamp.style.background = 'var(--main-green)';
             let sim_interval = window.setInterval(() => {
-                getData('/simconnect/status/', '', (response) => {
+                flaskGet('/simconnect/status/', '', (response) => {
                     if (response.STATUS == "Sim not found") {
                         clearInterval(sim_interval)
-                        simconnect_status = 'Connecting';
+                        sim_connect.status = false;
                         sim_con_lamp.style.background = 'var(--main-red)';
                     }
                 }),
@@ -40,41 +71,25 @@ function fetchSimconnectStatus() {
 }
 
 function getSimulatorData() {
-    getData('/datasets/simconnect_location/', '', (response) => {
+    flaskGet('/datasets/simconnect_location/', '', (response) => {
         drawAirplaneOnMap(response);
     });
 }
 
+// Login page handler
 
-let btn_no_simbrief = document.getElementById('btn-no-simbrief');
-let btn_load_simbrief = document.getElementById('btn-load-simbrief');
-let login_userId = document.getElementById('simbrief-user');
+document.getElementById('btn-no-simbrief').addEventListener('click', moveLogin);
+document.getElementById('btn-load-simbrief').addEventListener('click', btnLoadSimbrief);
 
-btn_no_simbrief.addEventListener('click', moveLogin);
-btn_load_simbrief.addEventListener('click', btnLoadSimbrief);
-
-let navs = document.querySelectorAll('nav a');
-navs.forEach((nav) => {
+document.querySelectorAll('nav a').forEach((nav) => {
     nav.addEventListener('click', () => {
-        navs.forEach((nav) => {
+        document.querySelectorAll('nav a').forEach((nav) => {
             nav.classList.remove('active');
-            toggle_notepad.style.fill = 'white';
+            document.getElementById('toggle-notepad').style.fill = 'white';
         })
         nav.classList.add('active');
     })
 })
-
-function timeToUTC(t) {
-    const stamp = new Date(t);
-    let h = stamp.getUTCHours();
-    let m = stamp.getUTCMinutes();
-    return ((h.toString().length < 2) ? '0' + h : h) + ":" + ((m.toString().length < 2) ? '0' + m : m);
-}
-
-function clock() {
-    document.getElementById('time').innerHTML = timeToUTC(Date.now()) + ' UTC';
-    setTimeout(clock, 1000);
-}
 
 function moveLogin() {
     let login_page = document.getElementById('login-page');
@@ -82,6 +97,7 @@ function moveLogin() {
 }
 
 function btnLoadSimbrief() {
+    const login_userId = document.getElementById('simbrief-user');
     if (login_userId.value) {
         checkSimbriefEndpoint(login_userId.value);
     } else {
@@ -97,8 +113,10 @@ function btnLoadSimbrief() {
 }
 
 function animateSimbriefLoader(status) {
-    let lds_simbrief = document.getElementById('lds-simbrief');
-    let btn_simbrief_p = btn_load_simbrief.querySelector('p');
+    const btn_no_simbrief = document.getElementById('btn-no-simbrief');
+    const btn_load_simbrief = document.getElementById('btn-load-simbrief');
+    const lds_simbrief = document.getElementById('lds-simbrief');
+    const btn_simbrief_p = btn_load_simbrief.querySelector('p');
     switch (status) {
         case 'loading':
             btn_simbrief_p.style.display = 'none';
@@ -109,7 +127,7 @@ function animateSimbriefLoader(status) {
         case 'success':
             btn_simbrief_p.style.display = 'inline-block';
             lds_simbrief.style.display = 'none';
-            btn_simbrief_p.innerHTML = '<span style="font">' + callsign + '</span>' + icao_dep + ' &ndash; ' + icao_arr;
+            // btn_simbrief_p.innerHTML = '<span style="font">' + callsign + '</span>' + icao_dep + ' &ndash; ' + icao_arr;
             btn_load_simbrief.style.background = 'var(--main-green)';
             btn_no_simbrief.innerHTML = 'Continue';
             break;
@@ -130,12 +148,26 @@ function animateSimbriefLoader(status) {
     }
 }
 
+// Helper functions
+
+function timeToUTC(t) {
+    const stamp = new Date(t);
+    let h = stamp.getUTCHours();
+    let m = stamp.getUTCMinutes();
+    return ((h.toString().length < 2) ? '0' + h : h) + ":" + ((m.toString().length < 2) ? '0' + m : m);
+}
+
+function clock() {
+    document.getElementById('time').innerHTML = timeToUTC(Date.now()) + ' UTC';
+    setTimeout(clock, 1000);
+}
+
 function saveLocalVariables(name, data) {
-    setData('local', name, data);
+    flaskSet('local', name, data);
 }
 
 function fetchLocalVariables() {
-    getData('/datasets/temp_local/', '', (response) => {
+    flaskGet('/datasets/temp_local/', '', (response) => {
         document.querySelectorAll('.local-variable').forEach((vrb) => {
             if (vrb.type == "checkbox") {
                 vrb.checked = response[vrb.dataset.localSave];
@@ -143,8 +175,8 @@ function fetchLocalVariables() {
                 vrb.value = response[vrb.dataset.localSave];
             }
         })
-        setBriefingEntryFields(); 4
-        setBriefingLinks(response);
+        setBriefingEntryFields()
+        setBriefingLinks(response)
     });
 }
 
@@ -165,23 +197,26 @@ screen.orientation.addEventListener('change', () => {
     }
 })
 
+// Initial state on page load
+
 clock();
 notepad_startup(document.getElementById('notepad-canvas-notes'));
 
 document.addEventListener('DOMContentLoaded', () => {
-    getData('/simbrief/status/', '', (response) => {
+    flaskGet('/simbrief/status/', '', (response) => {
         if (response.STATUS == true) {
             simbrief_status = true;
             initSimbriefData(true);
         } else {
             let preloader = document.getElementById('preloader-login');
-            let logo = document.querySelector('aside>img');
-            let form = document.querySelector('aside form');
+            let logo = document.querySelector('#login-page img');
+            let form = document.querySelector('#login-page form');
             let footer = document.getElementById('login-footer');
             preloader.style.display = 'none';
             logo.style.display = 'inline-block';
             form.style.display = 'grid';
             footer.style.display = 'flex';
+            const login_userId = document.getElementById('simbrief-user');
             if (response.USER_ID) {
                 login_userId.value = response.USER_ID;
             }

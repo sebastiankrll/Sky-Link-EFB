@@ -38,7 +38,7 @@
 }
 
 #login-page input,
-button {
+#login-page button {
     height: 3rem;
     border-radius: 2px;
     border: none;

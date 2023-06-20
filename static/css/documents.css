@@ -127,7 +127,9 @@
 
 #document-viewer-list ul li>svg {
     height: 50%;
+    width: 1.5rem;
     fill: var(--main-grey);
+    stroke: var(--main-grey);
 }
 
 #document-viewer-wrapper {
@@ -196,4 +198,54 @@
 .pdf-viewer-container>div {
     width: 100%;
     height: fit-content;
+}
+
+.checklist-viewer {
+    flex-flow: row;
+    gap: 1rem;
+    padding: var(--standard-gap);
+    box-sizing: border-box;
+}
+
+.checklist-viewer ul {
+    list-style-type: none;
+    display: flex;
+    flex-flow: column;
+    gap: 1rem;
+}
+
+.checklist-viewer-index li {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: .5rem 1rem;
+    box-sizing: border-box;
+    border: solid 2px var(--main-grey);
+    border-radius: 5px;
+    white-space: nowrap;
+}
+
+.checklist-viewer-box {
+    border-left: solid 1px var(--main-grey);
+    width: 100%;
+    padding-left: 1rem;
+}
+
+.checklist-viewer-box li {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.checklist-viewer-box li>svg {
+    fill: white;
+    height: 2rem;
+}
+
+.checklist-viewer-box li>span {
+    border-bottom: solid 1px white;
+    width: 100%;
+    height: 1rem;
 }
